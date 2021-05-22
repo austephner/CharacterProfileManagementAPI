@@ -18,6 +18,9 @@ This is a small and simple API which allows for quick and dirty random character
 - Light weight
 
 ## Notes & Disclaimers
+- Recommended Unity Versions 2019.x and up
+  - Certain `UnityEditor` code may not be available in 2018
+  - The system can forego using the `CharacterConfigurationWindow` if needed, users must edit within the Inspector instead
 - Editor uses C# Reflection due to Unity's horrible handling of complex object serialization
   - This is more of a performance concern for editor serialization speed, it has no other negative implications
   - Serialization works completely fine, no data is lost when saving or editing
