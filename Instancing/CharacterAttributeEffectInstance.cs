@@ -9,7 +9,7 @@ namespace CharacterProfileManagement.Instancing
     /// in calculating a character's profile.
     /// </summary>
     [Serializable]
-    public class CharacterAttributeEffectInstance : CharacterDataInstance<CharacterAttributeConfiguration>
+    public class CharacterAttributeEffectInstance : CharacterDataInstance<CharacterAttributeEffectConfiguration>
     {
         public int effectValue;
     }

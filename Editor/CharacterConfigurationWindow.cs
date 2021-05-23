@@ -1076,6 +1076,19 @@ namespace CharacterProfileManagement.Editor
 
                             changeWasMade = true;
                         }
+                        
+                        // Stackable
+                        
+                        var stackable = EditorGUILayout.ToggleLeft("Stackable", attributeEffect.stackable);
+
+                        if (stackable != attributeEffect.stackable)
+                        {
+                            RecordChange("Changed attribute effect's stackable field");
+
+                            attributeEffect.stackable = stackable;
+
+                            changeWasMade = true;
+                        }
                     }
 
                     GUILayout.Space(15);
@@ -1133,17 +1146,6 @@ namespace CharacterProfileManagement.Editor
                 RecordChange("Changed attribute max value");
 
                 characterAttributeConfiguration.maxValue = maxAttributeValue;
-                changeWasMade = true;
-            }
-
-            var stackable = EditorGUILayout.ToggleLeft("Stackable", characterAttributeConfiguration.stackable);
-
-            if (stackable != characterAttributeConfiguration.stackable)
-            {
-                RecordChange("Changed attribute effect's stackable field");
-
-                characterAttributeConfiguration.stackable = stackable;
-
                 changeWasMade = true;
             }
 

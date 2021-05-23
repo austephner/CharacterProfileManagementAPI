@@ -3,9 +3,10 @@
 namespace CharacterProfileManagement.Configuration
 {
     [Serializable]
-    public class CharacterAttributeEffectConfiguration
+    public class CharacterAttributeEffectConfiguration : CharacterDataConfiguration
     {
         public string attributeGuid;
         public int minAttributeValue, maxAttributeValue;
+        public bool stackable;
     }
 }
