@@ -205,6 +205,7 @@ namespace CharacterProfileManagement.Editor
         public static void Open(CharacterProfileManagerEditor characterManagerEditor)
         {
             var window = Open();
+            window._characterManager = characterManagerEditor.characterProfileManager;
             window._characterManagerEditor = characterManagerEditor;
         }
 
