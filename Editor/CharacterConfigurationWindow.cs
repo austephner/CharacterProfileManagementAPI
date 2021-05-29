@@ -17,23 +17,73 @@ namespace CharacterProfileManagement.Editor
         public const string VERSION = "0.0";
 
         private const string LIST_ITEM = "•";
-        
+
+        #region Properties
+
+        private GUIStyle filterFieldStyle
+        {
+            get
+            {
+                if (_filterFieldStyle == null) _filterFieldStyle = GUI.skin.FindStyle("ToolbarSeachTextField");
+
+                return _filterFieldStyle;
+            }
+        }
+
+        #endregion
+
+        #region Events
+
+        private void OnUndoRedoPerformed()
+        {
+            if (_characterManagerEditor)
+            {
+                if (_characterManagerEditor.target != _characterManager)
+                    _characterManager = _characterManagerEditor.target as CharacterProfileManager;
+            }
+            else if (_characterManager)
+            {
+                _characterManager = null;
+            }
+
+            if (_characterManagerEditor)
+            {
+                _characterManagerEditor.serializedObject.Update();
+                SetDirty();
+            }
+
+            Repaint();
+        }
+
+        #endregion
+
+        #region Supporting Types
+
+        private enum CharacterDataType
+        {
+            Class,
+            Species,
+            Trait
+        }
+
+        #endregion
+
         #region Private
-        
+
         [SerializeField] private CharacterProfileManagerEditor _characterManagerEditor;
 
-        [SerializeField] private int _windowMode = 0;
+        [SerializeField] private int _windowMode;
 
         private CharacterProfileManager _characterManager;
-        
+
         private Vector2
             _classEditorScrollPosition,
             _speciesEditorScrollPosition,
             _traitEditorScrollPosition,
             _attributeEditorScrollPosition;
 
-        private string 
-            _classFilter = "", 
+        private string
+            _classFilter = "",
             _speciesFilter = "",
             _traitFilter = "",
             _attributeFilter = "";
@@ -47,24 +97,7 @@ namespace CharacterProfileManagement.Editor
             _showAttributesHelp;
 
         private CharacterProfile _testCharacterProfile = new CharacterProfile();
-        
-        #endregion
 
-        #region Properties
-
-        private GUIStyle filterFieldStyle
-        {
-            get
-            {
-                if (_filterFieldStyle == null)
-                {
-                    _filterFieldStyle = GUI.skin.FindStyle("ToolbarSeachTextField");
-                }
-
-                return _filterFieldStyle;
-            }
-        }
-        
         #endregion
 
         #region Unity Events
@@ -83,36 +116,57 @@ namespace CharacterProfileManagement.Editor
         private void OnGUI()
         {
             _windowMode = GUILayout.SelectionGrid(
-                _windowMode, 
-                new string[] { "Manual", "Settings", "Tools", "Testing", "Species", "Classes", "Traits", "Attributes" }, 
+                _windowMode,
+                new[] {"Manual", "Settings", "Tools", "Testing", "Species", "Classes", "Traits", "Attributes"},
                 4,
                 GUILayout.Height(50));
-            
+
+            // todo: refactor the character manager assignment
+
             var characterManager = (CharacterProfileManager) EditorGUILayout.ObjectField(
                 "Character Manager",
                 _characterManager,
                 typeof(CharacterProfileManager),
                 true);
 
-            if (characterManager != _characterManager)
+            // avoid using standard game object boolean-bull checks here. An actual null check must be performed.
+
+            if (characterManager == null && _characterManager != null)
             {
-                _characterManager = characterManager;
-                _characterManagerEditor = UnityEditor.Editor.CreateEditor(characterManager) as CharacterProfileManagerEditor;
-                Undo.RecordObject(this, "Changed character manager.");
-                throw new ExitGUIException();
+                // reference was removed
+                _characterManager = null;
+                _characterManagerEditor = null;
             }
-            
+            else if (characterManager != null && _characterManager == null ||
+                     characterManager != null && _characterManager != null && characterManager != _characterManager)
+            {
+                // new reference or changed reference
+                _characterManager = characterManager;
+                _characterManagerEditor =
+                    UnityEditor.Editor.CreateEditor(_characterManager) as CharacterProfileManagerEditor;
+            }
+            else if (characterManager == null && _characterManager == null &&
+                     _characterManagerEditor.characterProfileManager != null)
+            {
+                // lost real reference
+                _characterManager = _characterManagerEditor.characterProfileManager;
+            }
+            else if ((characterManager != null || _characterManager != null) && _characterManagerEditor == null)
+            {
+                // lost editor reference
+                _characterManagerEditor =
+                    UnityEditor.Editor.CreateEditor(_characterManager) as CharacterProfileManagerEditor;
+            }
+
             if (!_characterManagerEditor)
             {
                 FlexibleLabel("Please select a character manager.");
                 return;
             }
-            
+
             if (!_characterManager || _characterManager != _characterManagerEditor.characterProfileManager)
-            {
                 _characterManager = _characterManagerEditor.characterProfileManager;
-            }
-            
+
             GUILayout.BeginVertical(EditorStyles.helpBox);
             switch (_windowMode)
             {
@@ -139,14 +193,15 @@ namespace CharacterProfileManagement.Editor
                 case 7: // atrributes
                     DrawCharacterAttributesMode();
                     break;
-                default: 
+                default:
                     FlexibleLabel("Mode currently not yet supported.");
                     break;
             }
+
             GUILayout.FlexibleSpace();
             GUILayout.EndVertical();
         }
-        
+
         #endregion
 
         #region Static Utilities
@@ -178,7 +233,7 @@ namespace CharacterProfileManagement.Editor
             using (new GUILayout.VerticalScope(GUI.skin.box))
             {
                 _showSpeciesHelp = EditorGUILayout.BeginFoldoutHeaderGroup(_showSpeciesHelp, "Species");
-                
+
                 if (_showSpeciesHelp)
                 {
                     GUILayout.Label(
@@ -200,7 +255,7 @@ namespace CharacterProfileManagement.Editor
             using (new GUILayout.VerticalScope(GUI.skin.box))
             {
                 _showClassHelp = EditorGUILayout.BeginFoldoutHeaderGroup(_showClassHelp, "Classes");
-                
+
                 if (_showClassHelp)
                 {
                     GUILayout.Label(
@@ -222,7 +277,7 @@ namespace CharacterProfileManagement.Editor
             using (new GUILayout.VerticalScope(GUI.skin.box))
             {
                 _showTraitHelp = EditorGUILayout.BeginFoldoutHeaderGroup(_showTraitHelp, "Traits");
-                
+
                 if (_showTraitHelp)
                 {
                     GUILayout.Label(
@@ -241,11 +296,11 @@ namespace CharacterProfileManagement.Editor
 
                 EditorGUILayout.EndFoldoutHeaderGroup();
             }
-            
+
             using (new GUILayout.VerticalScope(GUI.skin.box))
             {
                 _showAttributesHelp = EditorGUILayout.BeginFoldoutHeaderGroup(_showAttributesHelp, "Attributes");
-                
+
                 if (_showAttributesHelp)
                 {
                     GUILayout.Label(
@@ -266,9 +321,8 @@ namespace CharacterProfileManagement.Editor
 
         private void DrawSettingsMode()
         {
-            
         }
-        
+
         private void DrawCharacterSpeciesMode()
         {
             _speciesFilter =
@@ -283,11 +337,14 @@ namespace CharacterProfileManagement.Editor
                 ref _speciesEditorScrollPosition,
                 "Species",
                 _speciesFilter,
-                (characterData => DrawCharacterSpeciesAdditionalItemDetails(characterData as CharacterSpeciesConfiguration))))
+                characterData =>
+                    DrawCharacterSpeciesAdditionalItemDetails(characterData as CharacterSpeciesConfiguration)))
             {
                 _characterManagerEditor.characterSpeciesConfigurationCollection = collection;
                 SetDirty();
-            };
+            }
+
+            ;
         }
 
         private void DrawCharacterClassMode()
@@ -304,11 +361,13 @@ namespace CharacterProfileManagement.Editor
                 ref _classEditorScrollPosition,
                 "Class",
                 _classFilter,
-                (characterData => false)))
+                characterData => false))
             {
                 _characterManagerEditor.characterClassConfigurationCollection = collection;
                 SetDirty();
-            };
+            }
+
+            ;
         }
 
         private void DrawCharacterTraitMode()
@@ -325,11 +384,13 @@ namespace CharacterProfileManagement.Editor
                 ref _traitEditorScrollPosition,
                 "Trait",
                 _traitFilter,
-                (characterData => DrawCharacterTraitAdditionalItemDetails(characterData as CharacterTraitConfiguration))))
+                characterData => DrawCharacterTraitAdditionalItemDetails(characterData as CharacterTraitConfiguration)))
             {
                 _characterManagerEditor.characterTraitConfigurationCollection = collection;
                 SetDirty();
-            };
+            }
+
+            ;
         }
 
         private void DrawCharacterAttributesMode()
@@ -346,19 +407,19 @@ namespace CharacterProfileManagement.Editor
                 ref _attributeEditorScrollPosition,
                 "Attribute",
                 _attributeFilter,
-                (characterData => DrawCharacterAttributeAdditionalItemDetails(characterData as CharacterAttributeConfiguration))))
+                characterData =>
+                    DrawCharacterAttributeAdditionalItemDetails(characterData as CharacterAttributeConfiguration)))
             {
                 _characterManagerEditor.characterAttributeConfigurationCollection = collection;
                 SetDirty();
-            };
+            }
+
+            ;
         }
 
         private void DrawCharacterTestingMode()
         {
-            if (_testCharacterProfile == null)
-            {
-                _testCharacterProfile = new CharacterProfile();
-            }
+            if (_testCharacterProfile == null) _testCharacterProfile = new CharacterProfile();
 
             if (!CharacterProfileManager.Instance)
             {
@@ -368,11 +429,8 @@ namespace CharacterProfileManagement.Editor
 
             try
             {
-
                 if (GUILayout.Button("ROLL", GUILayout.Height(50)))
-                {
                     _testCharacterProfile = _characterManager.RollNewCharacter();
-                }
 
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true));
 
@@ -383,30 +441,27 @@ namespace CharacterProfileManagement.Editor
                 using (new EditorGUILayout.VerticalScope())
                 {
                     foreach (var attribute in _testCharacterProfile.attributes)
-                    {
-                        GUILayout.Label($"\t{attribute.GetConfiguration().name}: {attribute.baseValue} + {attribute.calculatedValue} ({attribute.totalValue})");
-                    }
+                        GUILayout.Label(
+                            $"\t{attribute.GetConfiguration().name}: {attribute.baseValue} + {attribute.calculatedValue} ({attribute.totalValue})");
                 }
 
                 GUILayout.Label("Traits:");
                 GUILayout.BeginVertical();
-                for (int i = 0; i < _testCharacterProfile.traits.Count; i++)
+                for (var i = 0; i < _testCharacterProfile.traits.Count; i++)
                 {
-                    if (i != 0)
-                    {
-                        GUILayout.Space(15);
-                    }
+                    if (i != 0) GUILayout.Space(15);
 
                     var trait = _testCharacterProfile.traits[i];
                     var configuration = trait.GetConfiguration();
                     GUILayout.Label($"\t#{i} - {configuration.name}");
                     foreach (var attributeEffect in trait.attributeEffects)
                     {
-                        var attributeConfiguration = attributeEffect.GetConfiguration();
+                        var attributeConfiguration = attributeEffect.GetAttributeConfiguration();
                         var sign = attributeEffect.effectValue >= 0 ? "+" : "";
                         GUILayout.Label($"\t\t{sign}{attributeEffect.effectValue} {attributeConfiguration.name}");
                     }
                 }
+
                 GUILayout.EndVertical();
 
                 GUILayout.FlexibleSpace();
@@ -414,18 +469,15 @@ namespace CharacterProfileManagement.Editor
             }
             catch (Exception exception)
             {
-                if (exception is ExitGUIException)
-                {
-                    throw;
-                }
-                
+                if (exception is ExitGUIException) throw;
+
                 Debug.LogException(exception);
                 _testCharacterProfile = new CharacterProfile();
             }
         }
-        
+
         #endregion
-        
+
         #region Private Utilities
 
         private void RecordChange(string change)
@@ -433,7 +485,7 @@ namespace CharacterProfileManagement.Editor
             Undo.RegisterCompleteObjectUndo(_characterManager, change);
             SetDirty();
         }
-        
+
         private new void SetDirty()
         {
             EditorUtility.SetDirty(_characterManagerEditor.target);
@@ -442,33 +494,28 @@ namespace CharacterProfileManagement.Editor
 
         private void ReplaceAllGuidOccurrences(string oldGuid, string newGuid)
         {
-            ReplaceGuidInCollection(_characterManagerEditor.characterAttributeConfigurationCollection, oldGuid, newGuid);
+            ReplaceGuidInCollection(_characterManagerEditor.characterAttributeConfigurationCollection, oldGuid,
+                newGuid);
             ReplaceGuidInCollection(_characterManagerEditor.characterClassConfigurationCollection, oldGuid, newGuid);
             ReplaceGuidInCollection(_characterManagerEditor.characterSpeciesConfigurationCollection, oldGuid, newGuid);
             ReplaceGuidInCollection(_characterManagerEditor.characterTraitConfigurationCollection, oldGuid, newGuid);
         }
 
         private void ReplaceGuidInCollection<T>(
-            CharacterDataConfigurationCollection<T> collection, 
+            CharacterDataConfigurationCollection<T> collection,
             string oldGuid,
             string newGuid)
-            where T: CharacterDataConfiguration
+            where T : CharacterDataConfiguration
         {
-            foreach (var item in collection.items)
-            {
-                item.HandleGuidReplacement(oldGuid, newGuid);
-            }
+            foreach (var item in collection.items) item.HandleGuidReplacement(oldGuid, newGuid);
         }
 
         private bool DrawCharacterData(
-            CharacterDataConfiguration characterDataConfiguration, 
+            CharacterDataConfiguration characterDataConfiguration,
             Func<CharacterDataConfiguration, bool> customProperties)
         {
-            if (characterDataConfiguration == null)
-            {
-                return false;
-            }
-            
+            if (characterDataConfiguration == null) return false;
+
             var changeWasMade = false;
             var displayName = characterDataConfiguration.name.IsNullOrWhiteSpace()
                 ? "UNNAMED ENTRY"
@@ -479,8 +526,8 @@ namespace CharacterProfileManagement.Editor
             GUILayout.Space(5);
 
             var icon = (Texture) EditorGUILayout.ObjectField(
-                characterDataConfiguration.icon, 
-                typeof(Texture), 
+                characterDataConfiguration.icon,
+                typeof(Texture),
                 false,
                 GUILayout.Height(50),
                 GUILayout.Width(50));
@@ -494,9 +541,9 @@ namespace CharacterProfileManagement.Editor
                 characterDataConfiguration.icon = icon;
                 changeWasMade = true;
             }
-            
+
             GUILayout.BeginVertical(GUILayout.ExpandHeight(true));
-            
+
             var showInEditor =
                 EditorGUILayout.BeginFoldoutHeaderGroup(
                     characterDataConfiguration.showInEditor,
@@ -507,7 +554,7 @@ namespace CharacterProfileManagement.Editor
                 characterDataConfiguration.showInEditor = showInEditor;
                 Repaint();
             }
-            
+
             // GUID
 
             GUILayout.BeginHorizontal();
@@ -515,13 +562,11 @@ namespace CharacterProfileManagement.Editor
             EditorGUILayout.TextField("GUID", characterDataConfiguration.guid);
             GUI.enabled = true;
             if (GUILayout.Button(new GUIContent("C", "Copy to clipboard."), GUILayout.ExpandWidth(false)))
-            {
                 EditorGUIUtility.systemCopyBuffer = characterDataConfiguration.guid;
-            }
             if (GUILayout.Button(new GUIContent("R", "Randomize"), GUILayout.ExpandWidth(false)))
             {
                 RecordChange("Item received new GUID.");
-                
+
                 var newGuid = Guid.NewGuid().ToString();
                 var oldGuid = characterDataConfiguration.guid;
 
@@ -531,11 +576,13 @@ namespace CharacterProfileManagement.Editor
                 }
                 else
                 {
-                    ReplaceAllGuidOccurrences(oldGuid, newGuid);;
+                    ReplaceAllGuidOccurrences(oldGuid, newGuid);
+                    ;
                 }
 
                 changeWasMade = true;
             }
+
             GUILayout.EndHorizontal();
 
             if (characterDataConfiguration.showInEditor)
@@ -570,33 +617,26 @@ namespace CharacterProfileManagement.Editor
 
                 // Additional Details
 
-                if (customProperties?.Invoke(characterDataConfiguration) == true)
-                {
-                    changeWasMade = true;
-                }
-                
+                if (customProperties?.Invoke(characterDataConfiguration) == true) changeWasMade = true;
+
                 // Availability rules
 
                 GUILayout.Space(15);
-                
+
                 characterDataConfiguration.showAvailabilityRulesInEditor =
                     EditorGUILayout.BeginToggleGroup(
                         "Show Availability Rules",
                         characterDataConfiguration.showAvailabilityRulesInEditor);
 
                 if (characterDataConfiguration.showAvailabilityRulesInEditor)
-                {
                     if (DrawAvailabilityRules(characterDataConfiguration.availabilityRules))
-                    {
                         changeWasMade = true;
-                    }
-                }
 
                 EditorGUILayout.EndToggleGroup();
 
                 // GUILayout.Space(15);
             }
-            
+
             EditorGUILayout.EndFoldoutHeaderGroup();
 
             GUILayout.Space(15);
@@ -610,28 +650,25 @@ namespace CharacterProfileManagement.Editor
         {
             var changeWasMade = false;
 
-            for (int i = 0; i < rules.Count; i++)
+            for (var i = 0; i < rules.Count; i++)
             {
                 var rule = rules[i];
 
-                if (i != 0)
-                {
-                    GUILayout.Space(10);
-                }
-                
+                if (i != 0) GUILayout.Space(10);
+
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"#{i}", EditorStyles.boldLabel, GUILayout.Width(25));
 
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true));
                 GUILayout.BeginHorizontal();
-                
+
                 // Availability rule editing 
-                
+
                 var availability = (AvailabilityType) EditorGUILayout.EnumPopup(rule.availabilityType);
                 if (availability != rule.availabilityType)
                 {
                     RecordChange("Changed availability rule type.");
-                    
+
                     rule.availabilityType = availability;
                     changeWasMade = true;
                 }
@@ -646,29 +683,31 @@ namespace CharacterProfileManagement.Editor
                     rule.dataAvailabilityType = dataAvailability;
                     changeWasMade = true;
                 }
-                
+
                 GUILayout.EndHorizontal();
-                
+
                 // Availability rule GUIDs
-                
+
                 GUILayout.BeginVertical();
 
-                for (int j = 0; j < rule.guids.Count; j++)
+                for (var j = 0; j < rule.guids.Count; j++)
                 {
                     var guid = rule.guids[j];
 
                     GUILayout.BeginHorizontal();
-                    
+
                     switch (rule.dataAvailabilityType)
                     {
                         case DataAvailabilityType.None:
                             GUILayout.Label("No Availability Type Selected");
                             break;
                         case DataAvailabilityType.Class:
-                            guid = DrawDataTypeDropdown(guid, _characterManagerEditor.characterClassConfigurationCollection);
+                            guid = DrawDataTypeDropdown(guid,
+                                _characterManagerEditor.characterClassConfigurationCollection);
                             break;
                         case DataAvailabilityType.Species:
-                            guid = DrawDataTypeDropdown(guid, _characterManagerEditor.characterSpeciesConfigurationCollection);
+                            guid = DrawDataTypeDropdown(guid,
+                                _characterManagerEditor.characterSpeciesConfigurationCollection);
                             break;
                     }
 
@@ -687,10 +726,10 @@ namespace CharacterProfileManagement.Editor
                         rule.guids.RemoveAt(j);
                         changeWasMade = true;
                     }
-                    
+
                     GUILayout.EndHorizontal();
                 }
-                
+
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("Add GUID"))
@@ -700,33 +739,32 @@ namespace CharacterProfileManagement.Editor
                     rule.guids.Add("");
                     changeWasMade = true;
                 }
+
                 GUILayout.EndHorizontal();
-                
+
                 GUILayout.EndVertical();
 
                 GUILayout.Space(10);
                 GUILayout.EndVertical();
 
                 // Controls
-                
+
                 GUILayout.BeginVertical(GUILayout.ExpandHeight(true), GUILayout.Width(25));
                 if (GUILayout.Button(new GUIContent("X", "Delete")))
                 {
                     RecordChange("Removed availability rule.");
-                    
+
                     rules.RemoveAt(i);
                     changeWasMade = true;
                 }
+
                 GUILayout.EndVertical();
-                
+
                 GUILayout.EndHorizontal();
             }
 
-            if (rules.Count > 0)
-            {
-                GUILayout.Space(15);
-            }
-            
+            if (rules.Count > 0) GUILayout.Space(15);
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.FlexibleSpace();
@@ -742,7 +780,8 @@ namespace CharacterProfileManagement.Editor
             return changeWasMade;
         }
 
-        private string DrawDataTypeDropdown<T>(string selectedGuid, CharacterDataConfigurationCollection<T> dataConfigurationCollection) 
+        private string DrawDataTypeDropdown<T>(string selectedGuid,
+            CharacterDataConfigurationCollection<T> dataConfigurationCollection)
             where T : CharacterDataConfiguration
         {
             var options = new List<GUIContent>();
@@ -760,21 +799,19 @@ namespace CharacterProfileManagement.Editor
 
             var selectedIndex = values.IndexOf(selectedGuid);
 
-            if (selectedIndex < 0 || selectedIndex >= options.Count)
-            {
-                selectedIndex = 0;
-            }
+            if (selectedIndex < 0 || selectedIndex >= options.Count) selectedIndex = 0;
 
             selectedIndex = EditorGUILayout.Popup(selectedIndex, options.ToArray());
             return values[selectedIndex];
         }
 
         /// <summary>
-        /// Draws a <see cref="CharacterDataConfigurationCollection{T}"/> and returns whether or not a change was made.
+        ///     Draws a <see cref="CharacterDataConfigurationCollection{T}" /> and returns whether or not a change was made.
         /// </summary>
         /// <param name="configurationCollection"></param>
         /// <param name="scrollPosition"></param>
-        /// <param name="descriptiveClassName">The name of the class for recording change history and adding new items.
+        /// <param name="descriptiveClassName">
+        ///     The name of the class for recording change history and adding new items.
         /// </param>
         /// <param name="filter">The filter to use for delimiting items that are drawn.</param>
         /// <param name="drawAdditionalItemDetails"></param>
@@ -785,7 +822,7 @@ namespace CharacterProfileManagement.Editor
             ref Vector2 scrollPosition,
             string descriptiveClassName,
             string filter,
-            Func<CharacterDataConfiguration, bool> drawAdditionalItemDetails) 
+            Func<CharacterDataConfiguration, bool> drawAdditionalItemDetails)
             where T : CharacterDataConfiguration
         {
             var items = configurationCollection.items;
@@ -797,7 +834,7 @@ namespace CharacterProfileManagement.Editor
             {
                 RecordChange($"Added new {descriptiveClassName}");
                 changeWasMade = true;
-                items.Add(default(T));
+                items.Add(default);
             }
 
             scrollPosition = GUILayout.BeginScrollView(
@@ -805,33 +842,28 @@ namespace CharacterProfileManagement.Editor
                 GUIStyle.none,
                 GUI.skin.verticalScrollbar,
                 GUILayout.ExpandHeight(true));
-            
-            for (int i = 0; i < items.Count; i++)
+
+            for (var i = 0; i < items.Count; i++)
             {
                 var item = items[i];
-                
+
                 if (hasFilter && !item.name.IsNullOrWhiteSpace())
                 {
                     var modifiedName = item.name.ToLower().Trim();
                     if (!modifiedFilter.Contains(modifiedName) &&
                         !modifiedName.Contains(modifiedFilter) &&
                         modifiedFilter != modifiedName)
-                    {
                         continue;
-                    }
                 }
-                
+
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"#{i}", EditorStyles.boldLabel, GUILayout.Width(25));
 
-                if (DrawCharacterData(items[i], drawAdditionalItemDetails))
-                {
-                    changeWasMade = true;
-                }
-                
+                if (DrawCharacterData(items[i], drawAdditionalItemDetails)) changeWasMade = true;
+
                 GUILayout.BeginVertical(GUILayout.Width(25));
                 GUILayout.Space(5);
-                
+
                 GUI.enabled = i != 0;
                 if (GUILayout.Button(new GUIContent("UP", "Move Up")))
                 {
@@ -858,31 +890,28 @@ namespace CharacterProfileManagement.Editor
                     i--;
                     changeWasMade = true;
                 }
-                
+
                 GUILayout.EndVertical();
 
                 GUILayout.EndHorizontal();
             }
-            
+
             GUILayout.EndScrollView();
 
-            if (changeWasMade)
-            {
-                configurationCollection.items = items;
-            }
+            if (changeWasMade) configurationCollection.items = items;
 
             return changeWasMade;
         }
-        
+
         private bool DrawCharacterSpeciesAdditionalItemDetails(CharacterSpeciesConfiguration species)
         {
             var changeWasMade = false;
-            
-            var nameBuilder = 
+
+            var nameBuilder =
                 (CharacterNameBuilder) EditorGUILayout.ObjectField(
                     "Name Builder",
                     species.nameBuilder,
-                    typeof(CharacterNameBuilder), 
+                    typeof(CharacterNameBuilder),
                     false);
 
             if (nameBuilder != species.nameBuilder)
@@ -897,10 +926,8 @@ namespace CharacterProfileManagement.Editor
                 species.showAttributeEffectsInEditor);
 
             if (species.showAttributeEffectsInEditor && DrawAttributeEffects(species.baseAttributeEffects))
-            {
                 changeWasMade = true;
-            }
-            
+
             EditorGUILayout.EndToggleGroup();
 
             return changeWasMade;
@@ -914,32 +941,24 @@ namespace CharacterProfileManagement.Editor
 
             trait.showAttributeEffectsInEditor =
                 EditorGUILayout.BeginToggleGroup(
-                    "Show Attribute Effects", 
+                    "Show Attribute Effects",
                     trait.showAttributeEffectsInEditor);
 
             if (trait.showAttributeEffectsInEditor)
-            {
                 if (DrawAttributeEffects(trait.attributeEffects))
-                {
                     changeWasMade = true;
-                }
-            }
-            
+
             EditorGUILayout.EndToggleGroup();
-            
+
             trait.showTraitNegationsInEditor =
                 EditorGUILayout.BeginToggleGroup(
-                    "Show Negated Traits", 
+                    "Show Negated Traits",
                     trait.showTraitNegationsInEditor);
 
             if (trait.showTraitNegationsInEditor)
-            {
                 if (DrawCharacterTraitNegations(trait.negatedTraits))
-                {
                     changeWasMade = true;
-                }
-            }
-            
+
             EditorGUILayout.EndToggleGroup();
 
             return changeWasMade;
@@ -947,35 +966,33 @@ namespace CharacterProfileManagement.Editor
 
         private bool DrawCharacterTraitNegations(List<string> negations)
         {
-            DrawHelpBox("A negated trait is a trait that can't be randomly selected with this trait in the same character profile.");
-            
+            DrawHelpBox(
+                "A negated trait is a trait that can't be randomly selected with this trait in the same character profile.");
+
             var changeWasMade = false;
 
-            for (int i = 0; i < negations.Count; i++)
+            for (var i = 0; i < negations.Count; i++)
             {
                 var negation = negations[i];
-                
-                if (i != 0)
-                {
-                    GUILayout.Space(10);
-                }
+
+                if (i != 0) GUILayout.Space(10);
 
                 using (new GUILayout.HorizontalScope())
                 {
                     GUILayout.Label($"#{i}", EditorStyles.boldLabel, GUILayout.Width(25));
 
                     using (new GUILayout.HorizontalScope(
-                        GUI.skin.box, 
+                        GUI.skin.box,
                         GUILayout.ExpandHeight(true)))
                     {
                         var newNegation = DrawDataTypeDropdown(
-                            negation, 
+                            negation,
                             _characterManagerEditor.characterTraitConfigurationCollection);
-                        
+
                         if (newNegation != negation)
                         {
                             RecordChange("Changed trait negation");
-                            
+
                             negations[i] = newNegation;
 
                             changeWasMade = true;
@@ -983,23 +1000,20 @@ namespace CharacterProfileManagement.Editor
                     }
 
                     GUILayout.Space(15);
-                    
+
                     if (GUILayout.Button(new GUIContent("X", "Delete"), GUILayout.ExpandWidth(false)))
                     {
                         RecordChange("Removed trait negation.");
-                        
+
                         negations.RemoveAt(i);
-                        
+
                         changeWasMade = true;
                     }
                 }
             }
 
-            if (negations.Count > 0)
-            {
-                GUILayout.Space(5);
-            }
-            
+            if (negations.Count > 0) GUILayout.Space(5);
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.FlexibleSpace();
@@ -1008,7 +1022,7 @@ namespace CharacterProfileManagement.Editor
                     RecordChange("Added negation.");
 
                     negations.Add("");
-                    
+
                     changeWasMade = true;
                 }
             }
@@ -1018,33 +1032,31 @@ namespace CharacterProfileManagement.Editor
 
         private bool DrawAttributeEffects(List<CharacterAttributeEffectConfiguration> attributeEffects)
         {
-            DrawHelpBox("Attribute effects can alter a character's base attributes through traits or provide the actual baseline value for a species.");
-            
+            DrawHelpBox(
+                "Attribute effects can alter a character's base attributes through traits or provide the actual baseline value for a species.");
+
             var changeWasMade = false;
 
-            for (int i = 0; i < attributeEffects.Count; i++)
+            for (var i = 0; i < attributeEffects.Count; i++)
             {
                 var attributeEffect = attributeEffects[i];
-                
-                if (i != 0)
-                {
-                    GUILayout.Space(10);
-                }
+
+                if (i != 0) GUILayout.Space(10);
 
                 using (new GUILayout.HorizontalScope())
                 {
                     GUILayout.Label($"#{i}", EditorStyles.boldLabel, GUILayout.Width(25));
 
                     using (new GUILayout.VerticalScope(
-                        GUI.skin.box, 
+                        GUI.skin.box,
                         GUILayout.ExpandHeight(true)))
                     {
                         // Attribute GUID 
-                        
+
                         attributeEffect.attributeGuid = DrawDataTypeDropdown(
-                            attributeEffect.attributeGuid, 
+                            attributeEffect.attributeGuid,
                             _characterManagerEditor.characterAttributeConfigurationCollection);
-                        
+
                         // Min Random Effect Value
 
                         var minRandomAttributeEffect =
@@ -1060,9 +1072,9 @@ namespace CharacterProfileManagement.Editor
 
                             changeWasMade = true;
                         }
-                        
+
                         // Max Random Effect Value
-                        
+
                         var maxRandomAttributeEffect =
                             EditorGUILayout.IntField(
                                 "Max Attribute Value",
@@ -1076,9 +1088,9 @@ namespace CharacterProfileManagement.Editor
 
                             changeWasMade = true;
                         }
-                        
+
                         // Stackable
-                        
+
                         var stackable = EditorGUILayout.ToggleLeft("Stackable", attributeEffect.stackable);
 
                         if (stackable != attributeEffect.stackable)
@@ -1092,7 +1104,7 @@ namespace CharacterProfileManagement.Editor
                     }
 
                     GUILayout.Space(15);
-                    
+
                     if (GUILayout.Button(new GUIContent("X", "Delete"), GUILayout.ExpandWidth(false)))
                     {
                         RecordChange("Removed attribute effect.");
@@ -1102,11 +1114,8 @@ namespace CharacterProfileManagement.Editor
                 }
             }
 
-            if (attributeEffects.Count > 0)
-            {
-                GUILayout.Space(5);
-            }
-            
+            if (attributeEffects.Count > 0) GUILayout.Space(5);
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.FlexibleSpace();
@@ -1126,7 +1135,7 @@ namespace CharacterProfileManagement.Editor
             CharacterAttributeConfiguration characterAttributeConfiguration)
         {
             var changeWasMade = false;
-            
+
             var minAttributeValue =
                 EditorGUILayout.IntField("Min Attribute Value", characterAttributeConfiguration.minValue);
 
@@ -1137,7 +1146,7 @@ namespace CharacterProfileManagement.Editor
                 characterAttributeConfiguration.minValue = minAttributeValue;
                 changeWasMade = true;
             }
-            
+
             var maxAttributeValue =
                 EditorGUILayout.IntField("Max Attribute Value", characterAttributeConfiguration.maxValue);
 
@@ -1162,6 +1171,7 @@ namespace CharacterProfileManagement.Editor
                     GUILayout.Label(EditorGUIUtility.IconContent("_Help"), GUILayout.ExpandWidth(false));
                     GUILayout.Label(message, EditorStyles.wordWrappedMiniLabel);
                 }
+
                 GUILayout.Space(bottomMargin);
             }
         }
@@ -1177,46 +1187,9 @@ namespace CharacterProfileManagement.Editor
                     GUILayout.Label(label);
                     GUILayout.FlexibleSpace();
                 }
+
                 GUILayout.FlexibleSpace();
             }
-        }
-
-        #endregion
-        
-        #region Events
-
-        private void OnUndoRedoPerformed()
-        {
-            if (_characterManagerEditor)
-            {
-                if (_characterManagerEditor.target != _characterManager)
-                {
-                    _characterManager = _characterManagerEditor.target as CharacterProfileManager;
-                }
-            }
-            else if (_characterManager)
-            {
-                _characterManager = null;
-            }
-
-            if (_characterManagerEditor)
-            {
-                _characterManagerEditor.serializedObject.Update();
-                SetDirty();
-            }
-
-            Repaint();
-        }
-        
-        #endregion
-
-        #region Supporting Types
-
-        private enum CharacterDataType
-        {
-            Class,
-            Species,
-            Trait,
         }
 
         #endregion

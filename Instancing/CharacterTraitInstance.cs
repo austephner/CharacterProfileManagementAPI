@@ -15,13 +15,13 @@ namespace CharacterProfileManagement.Instancing
             configurationGuid = characterTraitConfiguration.guid;
 
             foreach (var attributeEffect in characterTraitConfiguration.attributeEffects)
-            {
-                attributeEffects.Add(new CharacterAttributeEffectInstance()
+                attributeEffects.Add(new CharacterAttributeEffectInstance
                 {
-                    configurationGuid = attributeEffect.attributeGuid,
+                    attributeGuid = attributeEffect.attributeGuid,
+                    attributeEffectConfigurationGuid = attributeEffect.guid,
+                    traitConfigurationGuid = configurationGuid,
                     effectValue = Random.Range(attributeEffect.minAttributeValue, attributeEffect.maxAttributeValue)
                 });
-            }
         }
     }
 }

@@ -4,31 +4,21 @@ using CharacterProfileManagement.Configuration;
 using CharacterProfileManagement.Instancing;
 using CharacterProfileManagement.Utility;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace CharacterProfileManagement
 {
     public class CharacterProfileManager : MonoBehaviour
     {
+        #region Private
+
+        private readonly IDictionary<string, CharacterDataConfiguration> _allConfigurations =
+            new Dictionary<string, CharacterDataConfiguration>();
+
+        #endregion
+
         #region Static
 
         public static CharacterProfileManager Instance { get; private set; }
-
-        #endregion
-        
-        #region Settings
-        
-        [SerializeField] private CharacterClassConfigurationCollection _classConfigurationCollection = new CharacterClassConfigurationCollection();
-        [SerializeField] private CharacterSpeciesConfigurationCollection _speciesConfigurationCollection = new CharacterSpeciesConfigurationCollection();
-        [SerializeField] private CharacterTraitConfigurationCollection _traitConfigurationCollection = new CharacterTraitConfigurationCollection();
-        [SerializeField] private CharacterAttributeConfigurationCollection _attributeConfigurationCollection = new CharacterAttributeConfigurationCollection();
-        
-        #endregion
-
-        #region Private
-
-        private IDictionary<string, CharacterDataConfiguration> _allConfigurations =
-            new Dictionary<string, CharacterDataConfiguration>(); 
 
         #endregion
 
@@ -41,11 +31,11 @@ namespace CharacterProfileManagement
                 DestroyImmediate(this);
                 return;
             }
-            else
-            {
-                Instance = this;
-            }
-            
+
+            Instance = this;
+
+            if (_dontDestroyOnLoad) DontDestroyOnLoad(this);
+
             InitializeDictionary();
         }
 
@@ -55,29 +45,37 @@ namespace CharacterProfileManagement
 
         private void InitializeDictionary()
         {
-            foreach (var item in _classConfigurationCollection.items)
-            {
-                _allConfigurations.Add(item.guid, item);
-            }
+            foreach (var item in _classConfigurationCollection.items) _allConfigurations.Add(item.guid, item);
 
-            foreach (var item in _speciesConfigurationCollection.items)
-            {
-                _allConfigurations.Add(item.guid, item);
-            }
+            foreach (var item in _speciesConfigurationCollection.items) _allConfigurations.Add(item.guid, item);
 
-            foreach (var item in _traitConfigurationCollection.items)
-            {
-                _allConfigurations.Add(item.guid, item);
-            }
-            
-            foreach (var item in _attributeConfigurationCollection.items)
-            {
-                _allConfigurations.Add(item.guid, item);
-            }
+            foreach (var item in _traitConfigurationCollection.items) _allConfigurations.Add(item.guid, item);
+
+            foreach (var item in _attributeConfigurationCollection.items) _allConfigurations.Add(item.guid, item);
         }
 
         #endregion
-        
+
+        #region Settings
+
+        [SerializeField] private bool _dontDestroyOnLoad = true;
+
+        [SerializeField]
+        private CharacterClassConfigurationCollection _classConfigurationCollection =
+            new CharacterClassConfigurationCollection();
+
+        [SerializeField] private CharacterSpeciesConfigurationCollection _speciesConfigurationCollection =
+            new CharacterSpeciesConfigurationCollection();
+
+        [SerializeField]
+        private CharacterTraitConfigurationCollection _traitConfigurationCollection =
+            new CharacterTraitConfigurationCollection();
+
+        [SerializeField] private CharacterAttributeConfigurationCollection _attributeConfigurationCollection =
+            new CharacterAttributeConfigurationCollection();
+
+        #endregion
+
         #region Public Utilities
 
         public CharacterDataConfiguration GetConfiguration(string guid)
@@ -108,10 +106,8 @@ namespace CharacterProfileManagement
                     .Where(item =>
                     {
                         if (species != null)
-                        {
                             return species.CheckCompatibility(item) &&
                                    item.CheckCompatibility(species);
-                        }
 
                         return true;
                     })
@@ -125,24 +121,16 @@ namespace CharacterProfileManagement
             var items = _traitConfigurationCollection.items.Where(trait =>
             {
                 if (existingTraits != null && existingTraits.Count > 0)
-                {
-                    for (int i = 0; i < existingTraits.Count; i++)
-                    {
+                    for (var i = 0; i < existingTraits.Count; i++)
                         if (existingTraits[i].guid == trait.guid ||
                             existingTraits[i].CheckNegation(trait) ||
                             trait.CheckNegation(existingTraits[i]))
-                        {
                             return false;
-                        }
-                    }
-                }
 
-                if (existingSpecies != null && 
+                if (existingSpecies != null &&
                     !existingSpecies.CheckCompatibility(trait) ||
                     !trait.CheckCompatibility(existingSpecies))
-                {
                     return false;
-                }
 
                 return true;
             });
@@ -162,30 +150,28 @@ namespace CharacterProfileManagement
             character.species = new CharacterSpeciesInstance(randomSpecies);
             character.mainClass = new CharacterClassInstance(randomClass);
 
-            for (int i = 0; i < randomSpecies.baseAttributeEffects.Count; i++)
+            for (var i = 0; i < randomSpecies.baseAttributeEffects.Count; i++)
             {
                 var baseAttributeEffect = randomSpecies.baseAttributeEffects[i];
-                
-                character.attributes.Add(new CharacterAttributeInstance()
+
+                character.attributes.Add(new CharacterAttributeInstance
                 {
                     configurationGuid = baseAttributeEffect.attributeGuid,
-                    baseValue = Random.Range(baseAttributeEffect.minAttributeValue, baseAttributeEffect.maxAttributeValue)
+                    baseValue = Random.Range(baseAttributeEffect.minAttributeValue,
+                        baseAttributeEffect.maxAttributeValue)
                 });
             }
 
-            for (int i = 0; i < randomTraitCount; i++)
+            for (var i = 0; i < randomTraitCount; i++)
             {
                 var randomTrait = GetRandomTrait(randomTraits, randomSpecies);
 
-                if (randomTrait == null)
-                {
-                    continue;
-                }
-                
+                if (randomTrait == null) continue;
+
                 randomTraits.Add(randomTrait);
                 character.traits.Add(new CharacterTraitInstance(randomTrait));
             }
-            
+
             character.RecalculateTraitAttributes();
 
             return character;
