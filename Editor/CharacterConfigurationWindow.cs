@@ -129,33 +129,23 @@ namespace CharacterProfileManagement.Editor
                 typeof(CharacterProfileManager),
                 true);
 
-            // avoid using standard game object boolean-bull checks here. An actual null check must be performed.
-
-            if (characterManager == null && _characterManager != null)
+            if (characterManager == null)
             {
-                // reference was removed
-                _characterManager = null;
-                _characterManagerEditor = null;
+                if (_characterManager != null || _characterManagerEditor != null)
+                {
+                    _characterManager = null;
+                    _characterManagerEditor = null;
+                }
             }
-            else if (characterManager != null && _characterManager == null ||
-                     characterManager != null && _characterManager != null && characterManager != _characterManager)
+            else
             {
-                // new reference or changed reference
-                _characterManager = characterManager;
-                _characterManagerEditor =
-                    UnityEditor.Editor.CreateEditor(_characterManager) as CharacterProfileManagerEditor;
-            }
-            else if (characterManager == null && _characterManager == null &&
-                     _characterManagerEditor.characterProfileManager != null)
-            {
-                // lost real reference
-                _characterManager = _characterManagerEditor.characterProfileManager;
-            }
-            else if ((characterManager != null || _characterManager != null) && _characterManagerEditor == null)
-            {
-                // lost editor reference
-                _characterManagerEditor =
-                    UnityEditor.Editor.CreateEditor(_characterManager) as CharacterProfileManagerEditor;
+                if (_characterManager == null || _characterManagerEditor == null ||
+                    characterManager != _characterManager)
+                {
+                    _characterManager = characterManager;
+                    _characterManagerEditor =
+                        UnityEditor.Editor.CreateEditor(_characterManager) as CharacterProfileManagerEditor;
+                }
             }
 
             if (!_characterManagerEditor)
@@ -190,7 +180,7 @@ namespace CharacterProfileManagement.Editor
                 case 6: // character traits
                     DrawCharacterTraitMode();
                     break;
-                case 7: // atrributes
+                case 7: // attributes
                     DrawCharacterAttributesMode();
                     break;
                 default:
