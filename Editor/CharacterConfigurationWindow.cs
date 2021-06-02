@@ -413,13 +413,21 @@ namespace CharacterProfileManagement.Editor
             {
                 _testCharacterProfile = new CharacterProfile();
             }
+            
+            // todo: this will go away when the overall data structure and algorithm changes for how profiles are stored
 
-            if (!CharacterProfileManager.Instance)
+            if (!EditorApplication.isPlaying)
             {
-                FlexibleLabel("Non CharacterManager instance. Try running the game.");
+                FlexibleLabel("Real time rolling is currently only available in playback mode.");
                 return;
             }
 
+            if (!CharacterProfileManager.Instance)
+            {
+                FlexibleLabel("No instance has been assigned to the static CharacterProfileManager global property yet.");
+                return;
+            }
+            
             try
             {
                 if (GUILayout.Button("ROLL", GUILayout.Height(50)))
