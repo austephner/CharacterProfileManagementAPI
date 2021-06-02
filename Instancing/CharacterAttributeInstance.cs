@@ -35,7 +35,10 @@ namespace CharacterProfileManagement.Instancing
             {
                 if (effect.GetEffectConfiguration().stackable)
                 {
-                    if (stackedEffects.Contains(effect.attributeGuid)) continue;
+                    if (stackedEffects.Contains(effect.attributeGuid))
+                    {
+                        continue;
+                    }
 
                     stackedEffects.Add(effect.attributeGuid);
                 }

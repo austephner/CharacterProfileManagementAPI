@@ -17,34 +17,42 @@ namespace CharacterProfileManagement.Utility
 
         public void RecalculateTraitAttributes()
         {
-            foreach (var baseAttribute in attributes) baseAttribute.effects.Clear();
+            foreach (var attribute in attributes)
+            {
+                attribute.effects.Clear();
+            }
 
             foreach (var trait in traits)
-            foreach (var attributeEffect in trait.attributeEffects)
             {
-                var baseAttribute = GetBaseAttribute(attributeEffect.attributeGuid);
-
-                if (baseAttribute == null)
+                foreach (var attributeEffect in trait.attributeEffects)
                 {
-                    var newAttribute = new CharacterAttributeInstance
+                    var attribute = GetAttribute(attributeEffect.attributeGuid);
+
+                    if (attribute == null)
                     {
-                        configurationGuid = attributeEffect.attributeGuid
-                    };
+                        var newAttribute = new CharacterAttributeInstance
+                        {
+                            configurationGuid = attributeEffect.attributeGuid
+                        };
 
-                    newAttribute.effects.Add(attributeEffect);
+                        newAttribute.effects.Add(attributeEffect);
 
-                    attributes.Add(newAttribute);
-                }
-                else
-                {
-                    baseAttribute.effects.Add(attributeEffect);
+                        attributes.Add(newAttribute);
+                    }
+                    else
+                    {
+                        attribute.effects.Add(attributeEffect);
+                    }
                 }
             }
 
-            foreach (var baseAttribute in attributes) baseAttribute.RecalculateValue();
+            foreach (var attribute in attributes)
+            {
+                attribute.RecalculateValue();
+            }
         }
 
-        public CharacterAttributeInstance GetBaseAttribute(string attributeConfigurationGuid)
+        public CharacterAttributeInstance GetAttribute(string attributeConfigurationGuid)
         {
             return attributes.FirstOrDefault(a => a.configurationGuid == attributeConfigurationGuid);
         }

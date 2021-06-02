@@ -24,7 +24,10 @@ namespace CharacterProfileManagement.Editor
         {
             get
             {
-                if (_filterFieldStyle == null) _filterFieldStyle = GUI.skin.FindStyle("ToolbarSeachTextField");
+                if (_filterFieldStyle == null)
+                {
+                    _filterFieldStyle = GUI.skin.FindStyle("ToolbarSeachTextField");
+                }
 
                 return _filterFieldStyle;
             }
@@ -39,7 +42,9 @@ namespace CharacterProfileManagement.Editor
             if (_characterManagerEditor)
             {
                 if (_characterManagerEditor.target != _characterManager)
+                {
                     _characterManager = _characterManagerEditor.target as CharacterProfileManager;
+                }
             }
             else if (_characterManager)
             {
@@ -155,7 +160,9 @@ namespace CharacterProfileManagement.Editor
             }
 
             if (!_characterManager || _characterManager != _characterManagerEditor.characterProfileManager)
+            {
                 _characterManager = _characterManagerEditor.characterProfileManager;
+            }
 
             GUILayout.BeginVertical(EditorStyles.helpBox);
             switch (_windowMode)
@@ -334,8 +341,6 @@ namespace CharacterProfileManagement.Editor
                 _characterManagerEditor.characterSpeciesConfigurationCollection = collection;
                 SetDirty();
             }
-
-            ;
         }
 
         private void DrawCharacterClassMode()
@@ -357,8 +362,6 @@ namespace CharacterProfileManagement.Editor
                 _characterManagerEditor.characterClassConfigurationCollection = collection;
                 SetDirty();
             }
-
-            ;
         }
 
         private void DrawCharacterTraitMode()
@@ -380,8 +383,6 @@ namespace CharacterProfileManagement.Editor
                 _characterManagerEditor.characterTraitConfigurationCollection = collection;
                 SetDirty();
             }
-
-            ;
         }
 
         private void DrawCharacterAttributesMode()
@@ -404,13 +405,14 @@ namespace CharacterProfileManagement.Editor
                 _characterManagerEditor.characterAttributeConfigurationCollection = collection;
                 SetDirty();
             }
-
-            ;
         }
 
         private void DrawCharacterTestingMode()
         {
-            if (_testCharacterProfile == null) _testCharacterProfile = new CharacterProfile();
+            if (_testCharacterProfile == null)
+            {
+                _testCharacterProfile = new CharacterProfile();
+            }
 
             if (!CharacterProfileManager.Instance)
             {
@@ -421,7 +423,9 @@ namespace CharacterProfileManagement.Editor
             try
             {
                 if (GUILayout.Button("ROLL", GUILayout.Height(50)))
+                {
                     _testCharacterProfile = _characterManager.RollNewCharacter();
+                }
 
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true));
 
@@ -432,15 +436,19 @@ namespace CharacterProfileManagement.Editor
                 using (new EditorGUILayout.VerticalScope())
                 {
                     foreach (var attribute in _testCharacterProfile.attributes)
-                        GUILayout.Label(
-                            $"\t{attribute.GetConfiguration().name}: {attribute.baseValue} + {attribute.calculatedValue} ({attribute.totalValue})");
+                    {
+                        GUILayout.Label($"\t{attribute.GetConfiguration().name}: {attribute.baseValue} + {attribute.calculatedValue} ({attribute.totalValue})");
+                    }
                 }
 
                 GUILayout.Label("Traits:");
                 GUILayout.BeginVertical();
                 for (var i = 0; i < _testCharacterProfile.traits.Count; i++)
                 {
-                    if (i != 0) GUILayout.Space(15);
+                    if (i != 0)
+                    {
+                        GUILayout.Space(15);
+                    }
 
                     var trait = _testCharacterProfile.traits[i];
                     var configuration = trait.GetConfiguration();
@@ -460,7 +468,10 @@ namespace CharacterProfileManagement.Editor
             }
             catch (Exception exception)
             {
-                if (exception is ExitGUIException) throw;
+                if (exception is ExitGUIException)
+                {
+                    throw;
+                }
 
                 Debug.LogException(exception);
                 _testCharacterProfile = new CharacterProfile();
@@ -498,14 +509,20 @@ namespace CharacterProfileManagement.Editor
             string newGuid)
             where T : CharacterDataConfiguration
         {
-            foreach (var item in collection.items) item.HandleGuidReplacement(oldGuid, newGuid);
+            foreach (var item in collection.items)
+            {
+                item.HandleGuidReplacement(oldGuid, newGuid);
+            }
         }
 
         private bool DrawCharacterData(
             CharacterDataConfiguration characterDataConfiguration,
             Func<CharacterDataConfiguration, bool> customProperties)
         {
-            if (characterDataConfiguration == null) return false;
+            if (characterDataConfiguration == null)
+            {
+                return false;
+            }
 
             var changeWasMade = false;
             var displayName = characterDataConfiguration.name.IsNullOrWhiteSpace()
@@ -553,7 +570,9 @@ namespace CharacterProfileManagement.Editor
             EditorGUILayout.TextField("GUID", characterDataConfiguration.guid);
             GUI.enabled = true;
             if (GUILayout.Button(new GUIContent("C", "Copy to clipboard."), GUILayout.ExpandWidth(false)))
+            {
                 EditorGUIUtility.systemCopyBuffer = characterDataConfiguration.guid;
+            }
             if (GUILayout.Button(new GUIContent("R", "Randomize"), GUILayout.ExpandWidth(false)))
             {
                 RecordChange("Item received new GUID.");
@@ -568,7 +587,6 @@ namespace CharacterProfileManagement.Editor
                 else
                 {
                     ReplaceAllGuidOccurrences(oldGuid, newGuid);
-                    ;
                 }
 
                 changeWasMade = true;
@@ -608,7 +626,10 @@ namespace CharacterProfileManagement.Editor
 
                 // Additional Details
 
-                if (customProperties?.Invoke(characterDataConfiguration) == true) changeWasMade = true;
+                if (customProperties?.Invoke(characterDataConfiguration) == true)
+                {
+                    changeWasMade = true;
+                }
 
                 // Availability rules
 
@@ -620,8 +641,12 @@ namespace CharacterProfileManagement.Editor
                         characterDataConfiguration.showAvailabilityRulesInEditor);
 
                 if (characterDataConfiguration.showAvailabilityRulesInEditor)
+                {
                     if (DrawAvailabilityRules(characterDataConfiguration.availabilityRules))
+                    {
                         changeWasMade = true;
+                    }
+                }
 
                 EditorGUILayout.EndToggleGroup();
 
@@ -645,7 +670,10 @@ namespace CharacterProfileManagement.Editor
             {
                 var rule = rules[i];
 
-                if (i != 0) GUILayout.Space(10);
+                if (i != 0)
+                {
+                    GUILayout.Space(10);
+                }
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"#{i}", EditorStyles.boldLabel, GUILayout.Width(25));
@@ -790,9 +818,13 @@ namespace CharacterProfileManagement.Editor
 
             var selectedIndex = values.IndexOf(selectedGuid);
 
-            if (selectedIndex < 0 || selectedIndex >= options.Count) selectedIndex = 0;
+            if (selectedIndex < 0 || selectedIndex >= options.Count)
+            {
+                selectedIndex = 0;
+            }
 
             selectedIndex = EditorGUILayout.Popup(selectedIndex, options.ToArray());
+            
             return values[selectedIndex];
         }
 
@@ -844,13 +876,18 @@ namespace CharacterProfileManagement.Editor
                     if (!modifiedFilter.Contains(modifiedName) &&
                         !modifiedName.Contains(modifiedFilter) &&
                         modifiedFilter != modifiedName)
+                    {
                         continue;
+                    }
                 }
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"#{i}", EditorStyles.boldLabel, GUILayout.Width(25));
 
-                if (DrawCharacterData(items[i], drawAdditionalItemDetails)) changeWasMade = true;
+                if (DrawCharacterData(items[i], drawAdditionalItemDetails))
+                {
+                    changeWasMade = true;
+                }
 
                 GUILayout.BeginVertical(GUILayout.Width(25));
                 GUILayout.Space(5);
@@ -889,7 +926,10 @@ namespace CharacterProfileManagement.Editor
 
             GUILayout.EndScrollView();
 
-            if (changeWasMade) configurationCollection.items = items;
+            if (changeWasMade)
+            {
+                configurationCollection.items = items;
+            }
 
             return changeWasMade;
         }
@@ -917,7 +957,9 @@ namespace CharacterProfileManagement.Editor
                 species.showAttributeEffectsInEditor);
 
             if (species.showAttributeEffectsInEditor && DrawAttributeEffects(species.baseAttributeEffects))
+            {
                 changeWasMade = true;
+            }
 
             EditorGUILayout.EndToggleGroup();
 
@@ -936,8 +978,12 @@ namespace CharacterProfileManagement.Editor
                     trait.showAttributeEffectsInEditor);
 
             if (trait.showAttributeEffectsInEditor)
+            {
                 if (DrawAttributeEffects(trait.attributeEffects))
+                {
                     changeWasMade = true;
+                }
+            }
 
             EditorGUILayout.EndToggleGroup();
 
@@ -947,8 +993,12 @@ namespace CharacterProfileManagement.Editor
                     trait.showTraitNegationsInEditor);
 
             if (trait.showTraitNegationsInEditor)
+            {
                 if (DrawCharacterTraitNegations(trait.negatedTraits))
+                {
                     changeWasMade = true;
+                }
+            }
 
             EditorGUILayout.EndToggleGroup();
 
@@ -966,7 +1016,10 @@ namespace CharacterProfileManagement.Editor
             {
                 var negation = negations[i];
 
-                if (i != 0) GUILayout.Space(10);
+                if (i != 0)
+                {
+                    GUILayout.Space(10);
+                }
 
                 using (new GUILayout.HorizontalScope())
                 {
@@ -1032,7 +1085,10 @@ namespace CharacterProfileManagement.Editor
             {
                 var attributeEffect = attributeEffects[i];
 
-                if (i != 0) GUILayout.Space(10);
+                if (i != 0)
+                {
+                    GUILayout.Space(10);
+                }
 
                 using (new GUILayout.HorizontalScope())
                 {

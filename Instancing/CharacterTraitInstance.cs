@@ -15,6 +15,7 @@ namespace CharacterProfileManagement.Instancing
             configurationGuid = characterTraitConfiguration.guid;
 
             foreach (var attributeEffect in characterTraitConfiguration.attributeEffects)
+            {
                 attributeEffects.Add(new CharacterAttributeEffectInstance
                 {
                     attributeGuid = attributeEffect.attributeGuid,
@@ -22,6 +23,7 @@ namespace CharacterProfileManagement.Instancing
                     traitConfigurationGuid = configurationGuid,
                     effectValue = Random.Range(attributeEffect.minAttributeValue, attributeEffect.maxAttributeValue)
                 });
+            }
         }
     }
 }
