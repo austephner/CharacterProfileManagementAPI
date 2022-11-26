@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CharacterProfileManagement.Configuration
+namespace CharacterGenerator.Configuration
 {
     [Serializable]
     public abstract class CharacterDataConfigurationCollection<T> where T : CharacterDataConfiguration

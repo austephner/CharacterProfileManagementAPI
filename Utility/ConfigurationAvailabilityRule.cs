@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CharacterProfileManagement.Utility
+namespace CharacterGenerator.Utility
 {
     [Serializable]
     public class ConfigurationAvailabilityRule

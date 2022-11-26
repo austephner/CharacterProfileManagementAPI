@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using CharacterProfileManagement.Utility;
+using CharacterGenerator.Utility;
 using UnityEngine;
 
-namespace CharacterProfileManagement.Configuration
+namespace CharacterGenerator.Configuration
 {
     [Serializable]
     public class CharacterDataConfiguration

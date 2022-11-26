@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using CharacterProfileManagement.Utility;
+using CharacterGenerator.Utility;
 using UnityEngine;
 
-namespace CharacterProfileManagement.NameBuilding
+namespace CharacterGenerator.NameBuilding
 {
     [CreateAssetMenu(menuName = "Character Management/Name Builders/List Based")]
     public class ListBasedNameBuilder : CharacterNameBuilder

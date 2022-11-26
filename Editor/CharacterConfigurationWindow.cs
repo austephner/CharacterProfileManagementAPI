@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using CharacterProfileManagement.Configuration;
-using CharacterProfileManagement.NameBuilding;
-using CharacterProfileManagement.Utility;
+using CharacterGenerator.Configuration;
+using CharacterGenerator.NameBuilding;
+using CharacterGenerator.Utility;
+using CharacterGenerator.Behaviours;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace CharacterProfileManagement.Editor
+namespace CharacterGenerator.Editor
 {
     // todo: replace all GUILayout.BeginXLayout() with using statements
     // todo: remaining menus
@@ -43,7 +44,7 @@ namespace CharacterProfileManagement.Editor
             {
                 if (_characterManagerEditor.target != _characterManager)
                 {
-                    _characterManager = _characterManagerEditor.target as CharacterProfileManager;
+                    _characterManager = _characterManagerEditor.target as Behaviours.CharacterGeneratorBehaviour;
                 }
             }
             else if (_characterManager)
@@ -79,7 +80,7 @@ namespace CharacterProfileManagement.Editor
 
         [SerializeField] private int _windowMode;
 
-        private CharacterProfileManager _characterManager;
+        private Behaviours.CharacterGeneratorBehaviour _characterManager;
 
         private Vector2
             _classEditorScrollPosition,
@@ -128,10 +129,10 @@ namespace CharacterProfileManagement.Editor
 
             // todo: refactor the character manager assignment
 
-            var characterManager = (CharacterProfileManager) EditorGUILayout.ObjectField(
+            var characterManager = (Behaviours.CharacterGeneratorBehaviour) EditorGUILayout.ObjectField(
                 "Character Manager",
                 _characterManager,
-                typeof(CharacterProfileManager),
+                typeof(Behaviours.CharacterGeneratorBehaviour),
                 true);
 
             if (characterManager == null)
@@ -159,9 +160,9 @@ namespace CharacterProfileManagement.Editor
                 return;
             }
 
-            if (!_characterManager || _characterManager != _characterManagerEditor.characterProfileManager)
+            if (!_characterManager || _characterManager != _characterManagerEditor.CharacterGeneratorBehaviour)
             {
-                _characterManager = _characterManagerEditor.characterProfileManager;
+                _characterManager = _characterManagerEditor.CharacterGeneratorBehaviour;
             }
 
             GUILayout.BeginVertical(EditorStyles.helpBox);
@@ -212,7 +213,7 @@ namespace CharacterProfileManagement.Editor
         public static void Open(CharacterProfileManagerEditor characterManagerEditor)
         {
             var window = Open();
-            window._characterManager = characterManagerEditor.characterProfileManager;
+            window._characterManager = characterManagerEditor.CharacterGeneratorBehaviour;
             window._characterManagerEditor = characterManagerEditor;
         }
 
@@ -422,9 +423,9 @@ namespace CharacterProfileManagement.Editor
                 return;
             }
 
-            if (!CharacterProfileManager.Instance)
+            if (!Behaviours.CharacterGeneratorBehaviour.instance)
             {
-                FlexibleLabel("No instance has been assigned to the static CharacterProfileManager global property yet.");
+                FlexibleLabel("No instance has been assigned to the static CharacterGeneratorBehaviour global property yet.");
                 return;
             }
             

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace CharacterProfileManagement.Utility
+namespace CharacterGenerator.Utility
 {
     public static class Extensions
     {

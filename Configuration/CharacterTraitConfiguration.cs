@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CharacterProfileManagement.Configuration
+namespace CharacterGenerator.Configuration
 {
     [Serializable]
     public class CharacterTraitConfiguration : CharacterDataConfiguration

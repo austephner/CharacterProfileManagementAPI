@@ -1,25 +1,26 @@
 ﻿using System.Reflection;
-using CharacterProfileManagement.Configuration;
+using CharacterGenerator.Configuration;
+using CharacterGenerator.Behaviours;
 using UnityEditor;
 using UnityEngine;
 
-namespace CharacterProfileManagement.Editor
+namespace CharacterGenerator.Editor
 {
-    [CustomEditor(typeof(CharacterProfileManager))]
+    [CustomEditor(typeof(Behaviours.CharacterGeneratorBehaviour))]
     public class CharacterProfileManagerEditor : UnityEditor.Editor
     {
-        public CharacterProfileManager characterProfileManager => target as CharacterProfileManager;
+        public Behaviours.CharacterGeneratorBehaviour CharacterGeneratorBehaviour => target as Behaviours.CharacterGeneratorBehaviour;
         
         public CharacterClassConfigurationCollection characterClassConfigurationCollection
         {
             get
             {
-                return GetFieldInfo("_classConfigurationCollection")?.GetValue(characterProfileManager) as CharacterClassConfigurationCollection;
+                return GetFieldInfo("_classConfigurationCollection")?.GetValue(CharacterGeneratorBehaviour) as CharacterClassConfigurationCollection;
             }
             set
             {
                 serializedObject.Update();
-                GetFieldInfo("_classConfigurationCollection")?.SetValue(characterProfileManager, value);
+                GetFieldInfo("_classConfigurationCollection")?.SetValue(CharacterGeneratorBehaviour, value);
                 EditorUtility.SetDirty(target);
                 serializedObject.ApplyModifiedProperties();
             }
@@ -29,12 +30,12 @@ namespace CharacterProfileManagement.Editor
         {
             get
             {
-                return GetFieldInfo("_speciesConfigurationCollection")?.GetValue(characterProfileManager) as CharacterSpeciesConfigurationCollection;
+                return GetFieldInfo("_speciesConfigurationCollection")?.GetValue(CharacterGeneratorBehaviour) as CharacterSpeciesConfigurationCollection;
             }
             set
             {
                 serializedObject.Update();
-                GetFieldInfo("_speciesConfigurationCollection")?.SetValue(characterProfileManager, value);
+                GetFieldInfo("_speciesConfigurationCollection")?.SetValue(CharacterGeneratorBehaviour, value);
                 EditorUtility.SetDirty(target);
                 serializedObject.ApplyModifiedProperties();
             }
@@ -44,12 +45,12 @@ namespace CharacterProfileManagement.Editor
         {
             get
             {
-                return GetFieldInfo("_traitConfigurationCollection")?.GetValue(characterProfileManager) as CharacterTraitConfigurationCollection;
+                return GetFieldInfo("_traitConfigurationCollection")?.GetValue(CharacterGeneratorBehaviour) as CharacterTraitConfigurationCollection;
             }
             set
             {
                 serializedObject.Update();
-                GetFieldInfo("_traitConfigurationCollection")?.SetValue(characterProfileManager, value);
+                GetFieldInfo("_traitConfigurationCollection")?.SetValue(CharacterGeneratorBehaviour, value);
                 EditorUtility.SetDirty(target);
                 serializedObject.ApplyModifiedProperties();
             }
@@ -59,12 +60,12 @@ namespace CharacterProfileManagement.Editor
         {
             get
             {
-                return GetFieldInfo("_attributeConfigurationCollection")?.GetValue(characterProfileManager) as CharacterAttributeConfigurationCollection;
+                return GetFieldInfo("_attributeConfigurationCollection")?.GetValue(CharacterGeneratorBehaviour) as CharacterAttributeConfigurationCollection;
             }
             set
             {
                 serializedObject.Update();
-                GetFieldInfo("_attributeConfigurationCollection")?.SetValue(characterProfileManager, value);
+                GetFieldInfo("_attributeConfigurationCollection")?.SetValue(CharacterGeneratorBehaviour, value);
                 EditorUtility.SetDirty(target);
                 serializedObject.ApplyModifiedProperties();
             }
@@ -72,7 +73,7 @@ namespace CharacterProfileManagement.Editor
 
         private FieldInfo GetFieldInfo(string fieldName)
         {
-            return typeof(CharacterProfileManager).GetField(
+            return typeof(Behaviours.CharacterGeneratorBehaviour).GetField(
                 fieldName,
                 BindingFlags.Instance | BindingFlags.NonPublic);
         }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using CharacterProfileManagement.NameBuilding;
+using CharacterGenerator.NameBuilding;
 
-namespace CharacterProfileManagement.Configuration
+namespace CharacterGenerator.Configuration
 {
     [Serializable]
     public class CharacterSpeciesConfiguration : CharacterDataConfiguration

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CharacterProfileManagement.Configuration
+namespace CharacterGenerator.Configuration
 {
     /// <summary>
     ///     A configuration owned by a <see cref="CharacterTraitConfiguration" /> which specifies the effect a trait has
@@ -15,7 +15,7 @@ namespace CharacterProfileManagement.Configuration
 
         public CharacterAttributeConfiguration GetAttributeConfiguration()
         {
-            return CharacterProfileManager.Instance.GetConfiguration<CharacterAttributeConfiguration>(attributeGuid);
+            return Behaviours.CharacterGeneratorBehaviour.instance.GetConfiguration<CharacterAttributeConfiguration>(attributeGuid);
         }
     }
 }

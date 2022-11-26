@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CharacterProfileManagement.NameBuilding
+namespace CharacterGenerator.NameBuilding
 {
     public abstract class CharacterNameBuilder : ScriptableObject
     {

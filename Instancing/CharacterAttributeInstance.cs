@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using CharacterProfileManagement.Configuration;
+using CharacterGenerator.Configuration;
 
-namespace CharacterProfileManagement.Instancing
+namespace CharacterGenerator.Instancing
 {
     /// <summary>
     ///     Represents an actual instance of an attribute, given a base value, additive values, and calculated value for

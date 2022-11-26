@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CharacterProfileManagement.Instancing;
+using CharacterGenerator.Instancing;
 
-namespace CharacterProfileManagement.Utility
+namespace CharacterGenerator.Utility
 {
     [Serializable]
     public class CharacterProfile

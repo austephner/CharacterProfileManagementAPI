@@ -1,7 +1,8 @@
 ﻿using System;
-using CharacterProfileManagement.Configuration;
+using CharacterGenerator.Configuration;
+using CharacterGenerator.Behaviours;
 
-namespace CharacterProfileManagement.Instancing
+namespace CharacterGenerator.Instancing
 {
     [Serializable]
     public abstract class CharacterDataInstance<T> where T : CharacterDataConfiguration
@@ -9,6 +10,6 @@ namespace CharacterProfileManagement.Instancing
         public string guid = Guid.NewGuid().ToString();
         public string configurationGuid;
 
-        public T GetConfiguration() => CharacterProfileManager.Instance.GetConfiguration<T>(configurationGuid);
+        public T GetConfiguration() => Behaviours.CharacterGeneratorBehaviour.instance.GetConfiguration<T>(configurationGuid);
     }
 }

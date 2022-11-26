@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CharacterProfileManagement.Configuration
+namespace CharacterGenerator.Configuration
 {
     [Serializable]
     public class CharacterClassConfiguration : CharacterDataConfiguration

@@ -1,7 +1,8 @@
 ﻿using System;
-using CharacterProfileManagement.Configuration;
+using CharacterGenerator.Configuration;
+using CharacterGenerator.Behaviours;
 
-namespace CharacterProfileManagement.Instancing
+namespace CharacterGenerator.Instancing
 {
     /// <summary>
     ///     Not to be confused with the <see cref="CharacterAttributeInstance" />, the effect-version of the class simply
@@ -22,7 +23,7 @@ namespace CharacterProfileManagement.Instancing
 
         public CharacterAttributeEffectConfiguration GetEffectConfiguration()
         {
-            return CharacterProfileManager.Instance
+            return Behaviours.CharacterGeneratorBehaviour.instance
                 .GetConfiguration<CharacterTraitConfiguration>(traitConfigurationGuid)
                 .GetAttributeEffectConfiguration(attributeEffectConfigurationGuid);
         }

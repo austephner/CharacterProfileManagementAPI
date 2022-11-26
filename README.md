@@ -1,11 +1,7 @@
-# Character Profile Management API (CPMAPI)
-#### Originally Developed by Austin Renner (@austephner)
-
-**! ! DISCLAIMER ! !**<br>
-This API is still in development and is not ready for production use. It may be filled with unknown issues or bugs. Additionally, code is subject to change.
+# Character Generator
 
 ## Summary
-This is a small and simple API which allows for quick and dirty random character profile generation in Unity. Users can define **classes**, **species**, **traits**, and **attributes** through a custom editor window. It uses a system of availability rules and trait negation to help control the randomization of new profiles.
+This API creates random characters based on configured species, traits, attributes, etc.
 
 ![Example](https://i.imgur.com/YouUx3D.gif)
 
@@ -21,6 +17,10 @@ This is a small and simple API which allows for quick and dirty random character
 - GUID based system
 - Extendable C# API
 - Light weight
+
+## Todo
+- UI Rework
+- Readme improvements for tutorials
 
 ## Notes & Disclaimers
 - Editor uses C# Reflection due to Unity's horrible handling of complex object serialization

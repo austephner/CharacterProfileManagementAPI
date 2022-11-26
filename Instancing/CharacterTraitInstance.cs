@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using CharacterProfileManagement.Configuration;
+using CharacterGenerator.Configuration;
 using Random = UnityEngine.Random;
 
-namespace CharacterProfileManagement.Instancing
+namespace CharacterGenerator.Instancing
 {
     [Serializable]
     public class CharacterTraitInstance : CharacterDataInstance<CharacterTraitConfiguration>

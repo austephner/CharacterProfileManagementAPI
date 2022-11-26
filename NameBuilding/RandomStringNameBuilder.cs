@@ -1,7 +1,7 @@
-﻿using CharacterProfileManagement.Utility;
+﻿using CharacterGenerator.Utility;
 using UnityEngine;
 
-namespace CharacterProfileManagement.NameBuilding
+namespace CharacterGenerator.NameBuilding
 {
     [CreateAssetMenu(menuName = "Character Management/Name Builders/Random String Name")]
     public class RandomStringNameBuilder : CharacterNameBuilder

@@ -1,6 +1,6 @@
-﻿using CharacterProfileManagement.Configuration;
+﻿using CharacterGenerator.Configuration;
 
-namespace CharacterProfileManagement.Instancing
+namespace CharacterGenerator.Instancing
 {
     public class CharacterSpeciesInstance : CharacterDataInstance<CharacterSpeciesConfiguration>
     {
