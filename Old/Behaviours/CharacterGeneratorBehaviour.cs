@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CharacterGenerator.Configuration;
-using CharacterGenerator.Instancing;
-using CharacterGenerator.Utility;
+using CharacterGenerator.Old.Configuration;
+using CharacterGenerator.Old.Instancing;
+using CharacterGenerator.Old.Utility;
 using UnityEngine;
 
-namespace CharacterGenerator.Behaviours
+namespace CharacterGenerator.Old.Behaviours
 {
     public class CharacterGeneratorBehaviour : MonoBehaviour
     {
