@@ -23,11 +23,6 @@ namespace CharacterGenerator.Editor
             Reload();
         }
 
-        public override void OnGUI(Rect rect)
-        {
-            base.OnGUI(rect);
-        }
-
         protected override bool CanMultiSelect(TreeViewItem item)
         {
             return false;
