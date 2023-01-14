@@ -5,8 +5,9 @@ namespace CharacterGenerator.Configuration
     [Serializable]
     public abstract class CharacterConfigurationEntity
     {
-        public string name = "";
-        
-        public string guid = Guid.NewGuid().ToString();
+        public string 
+            name = "Species", 
+            description = "", 
+            guid = Guid.NewGuid().ToString();
     }
 }

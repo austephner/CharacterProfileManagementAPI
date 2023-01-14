@@ -1,7 +1,9 @@
+using UnityEngine;
+
 namespace CharacterGenerator.Configuration
 {
-    public abstract class NameBuilder
+    public abstract class NameBuilder : ScriptableObject
     {
-        public abstract string CreateName();
+        public abstract string GenerateName();
     }
 }
