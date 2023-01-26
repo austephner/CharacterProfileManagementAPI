@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CharacterGenerator.Configuration;
-using CharacterGenerator.Editor.Modules;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;

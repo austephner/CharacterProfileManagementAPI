@@ -1,7 +1,7 @@
 ﻿using System;
 using CharacterGenerator.Configuration;
 
-namespace CharacterGenerator.Editor.Modules
+namespace CharacterGenerator.Editor
 {
     public abstract class EntityModuleEditor
     {

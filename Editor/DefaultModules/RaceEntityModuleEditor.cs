@@ -5,7 +5,7 @@ using CharacterGenerator.DefaultCharacters.Modules.Race;
 using UnityEditor;
 using UnityEngine;
 
-namespace CharacterGenerator.Editor.Modules
+namespace CharacterGenerator.Editor.DefaultModules
 {
     public class RaceEntityModuleEditor : EntityModuleEditor
     {

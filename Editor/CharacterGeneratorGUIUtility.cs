@@ -140,6 +140,17 @@ namespace CharacterGenerator.Editor
                         }
 
                         GUILayout.Space(15);
+                        GUILayout.Label("Rarity");
+
+                        var nextRarity = EditorGUILayout.Slider(entityConfiguration.rarity, 0.0f, 1.0f);
+
+                        if (nextRarity != entityConfiguration.rarity)
+                        {
+                            entityConfiguration.rarity = nextRarity;
+                            setDirty($"Changed {nextName} rarity");
+                        }
+
+                        GUILayout.Space(15);
                         drawCustomContent?.Invoke(entityConfiguration);
                     }
 

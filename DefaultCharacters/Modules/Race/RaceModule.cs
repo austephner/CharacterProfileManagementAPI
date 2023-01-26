@@ -14,7 +14,12 @@ namespace CharacterGenerator.DefaultCharacters.Modules.Race
 
         public override void Generate(CharacterData characterData, uint? seed = null)
         {
-            var randomRace = seed != null ? races.Random(seed.Value) : races.Random();
+            var randomRace = seed != null
+                ? races.RandomByWeight(
+                    seed.Value,
+                    race => race.rarity)
+                : races.RandomByWeight(
+                    race => race.rarity);
 
             if (randomRace == null)
             {
