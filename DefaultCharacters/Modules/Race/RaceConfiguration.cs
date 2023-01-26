@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using CharacterGenerator.Configuration;
 
-namespace CharacterGenerator.Configuration
+namespace CharacterGenerator.DefaultCharacters.Modules.Race
 {
     [Serializable]
-    public class Species : CharacterConfigurationEntity
+    public class RaceConfiguration : EntityConfiguration
     {
         /// <summary>
         /// All name builders available for characters of this species.
@@ -14,10 +14,13 @@ namespace CharacterGenerator.Configuration
 
         public string GenerateName() => characterNameBuilders.Random()?.GenerateName();
 
-        #if UNITY_EDITOR
-        
-        [HideInInspector] public bool expandedInEditor = false;
-        
-        #endif
+        public RaceInstance CreateInstance()
+        {
+            return new RaceInstance()
+            {
+                guid = guid,
+                name = name
+            };
+        }
     }
 }

@@ -16,22 +16,11 @@ namespace CharacterGenerator.Editor
                 BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
-        public void ChangeGuid(string from, string to)
+        public void UpdateEntityGuidAcrossAllModules(string from, string to)
         {
-            foreach (var species in target.species)
+            foreach (var module in target.modules)
             {
-                if (species.guid == from)
-                {
-                    species.guid = to;
-                }
-            }
-
-            foreach (var trait in target.traits)
-            {
-                if (trait.guid == from)
-                {
-                    trait.guid = to;
-                }
+                module.HandleGuidChange(from, to);
             }
         }
     }

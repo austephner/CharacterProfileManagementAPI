@@ -5,20 +5,20 @@ using UnityEngine;
 
 namespace CharacterGenerator.Editor
 {
-    public class CategoryTreeView : TreeView
+    public class ModuleTreeView : TreeView
     {
         private TreeViewItem _root;
 
-        private IList<CategoryTreeViewItem> _categories = new List<CategoryTreeViewItem>();
+        private IList<ModuleTreeViewItem> _modules = new List<ModuleTreeViewItem>();
         
-        public CategoryTreeView(TreeViewState state, IList<CategoryTreeViewItem> categories) : base(state)
+        public ModuleTreeView(TreeViewState state, IList<ModuleTreeViewItem> modules) : base(state)
         {
-            _categories = categories;
+            _modules = modules;
             showBorder = true;
             Reload();
         }
 
-        public CategoryTreeView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader)
+        public ModuleTreeView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader)
         {
             Reload();
         }
@@ -35,12 +35,12 @@ namespace CharacterGenerator.Editor
                 children = new List<TreeViewItem>()
             };
             
-            SetupParentsAndChildrenFromDepths(_root, _categories.Select(c => c as TreeViewItem).ToList());
+            SetupParentsAndChildrenFromDepths(_root, _modules.Select(c => c as TreeViewItem).ToList());
 
             return _root;
         }
 
-        public CategoryTreeViewItem GetCurrentCategory()
+        public ModuleTreeViewItem GetSelectedModule()
         {
             var selectedId = GetSelection().FirstOrDefault();
 
@@ -49,7 +49,7 @@ namespace CharacterGenerator.Editor
                 return null;
             }
 
-            return _categories.FirstOrDefault(c => c.id == selectedId);
+            return _modules.FirstOrDefault(c => c.id == selectedId);
         }
     }
 }
