@@ -23,6 +23,8 @@ namespace CharacterGenerator.DefaultCharacters
 
         public List<AttributeInstance> attributes = new List<AttributeInstance>();
 
+        public DefaultCharacterData() { }
+        
         public DefaultCharacterData(CharacterData characterData)
         {
             guid = characterData.guid;
