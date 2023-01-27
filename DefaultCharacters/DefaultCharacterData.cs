@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using CharacterGenerator.Configuration;
+using CharacterGenerator.DefaultCharacters.Modules.Attributes;
 using CharacterGenerator.DefaultCharacters.Modules.Race;
 using CharacterGenerator.DefaultCharacters.Modules.Traits;
 using CharacterGenerator.Instancing;
+using UnityEngine;
 
 namespace CharacterGenerator.DefaultCharacters
 {
@@ -18,6 +20,8 @@ namespace CharacterGenerator.DefaultCharacters
         public RaceInstance race = new RaceInstance();
 
         public List<TraitInstance> traits = new List<TraitInstance>();
+
+        public List<AttributeInstance> attributes = new List<AttributeInstance>();
 
         public DefaultCharacterData(CharacterData characterData)
         {
@@ -41,10 +45,34 @@ namespace CharacterGenerator.DefaultCharacters
                 characterData.Remove(DefaultCharacterDataConstants.TRAITS);
             }
 
+            if (characterData.ContainsKey(DefaultCharacterDataConstants.ATTRIBUTES))
+            {
+                attributes = characterData.GetFromJson<AttributeInstanceCollection>(DefaultCharacterDataConstants.ATTRIBUTES).attributes;
+                characterData.Remove(DefaultCharacterDataConstants.ATTRIBUTES);
+            }
+
             foreach (var key in characterData.Keys)
             {
                 SetOrAdd(key, characterData[key]);
             }
+        }
+
+        public int GetTotalAttributeAffectsFromTraits(string attributeGuid)
+        {
+            var result = 0f;
+
+            for (int i = 0; i < traits.Count; i++)
+            {
+                for (int j = 0; j < traits[i].affectedAttributes.Count; j++)
+                {
+                    if (traits[i].affectedAttributes[j].attributeGuid == attributeGuid)
+                    {
+                        result += traits[i].affectedAttributes[j].affectAmount; 
+                    }
+                }
+            }
+            
+            return Mathf.RoundToInt(result);
         }
     }
 }

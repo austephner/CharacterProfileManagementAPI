@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Linq;
-using CharacterGenerator.Configuration;
 
-namespace CharacterGenerator.Instancing
+namespace CharacterGenerator.DefaultCharacters.Modules.Attributes
 {
     [Serializable]
     public class AttributeAffectInstance
     {
         public string attributeGuid;
+
+        public string attributeName;
 
         public float affectAmount;
     }

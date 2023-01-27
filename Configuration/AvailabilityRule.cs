@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CharacterGenerator.Configuration
 {
+    [Serializable]
     public class AvailabilityRule
     {
         /// <summary>

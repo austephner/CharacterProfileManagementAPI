@@ -5,6 +5,7 @@
         public const string
             RACE = "Race",
             NAME = "Name",
-            TRAITS = "Traits"; 
+            TRAITS = "Traits",
+            ATTRIBUTES = "Attributes"; 
     }
 }

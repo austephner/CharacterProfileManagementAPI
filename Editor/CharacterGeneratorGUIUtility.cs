@@ -9,6 +9,22 @@ namespace CharacterGenerator.Editor
 {
     public static class CharacterGeneratorGUIUtility
     {
+        public static void DrawIntField(GUIContent content, ref int value, Action onChanged)
+        {
+            var nextIntValue = EditorGUILayout.IntField(content, value);
+
+            if (nextIntValue != value)
+            {
+                value = nextIntValue;
+                onChanged?.Invoke();
+            }
+        }
+        
+        public static void DrawIntField(string label, ref int value, Action onChanged)
+        {
+            DrawIntField(new GUIContent(label), ref value, onChanged);
+        }
+        
         public static void DrawFullyFlexibleLabel(string label, GUIStyle style, params GUILayoutOption[] labelOptions)
         {
             using (new GUILayout.HorizontalScope())
@@ -75,7 +91,8 @@ namespace CharacterGenerator.Editor
             Action<string> setDirty,
             Action<T> drawCustomContent,
             Action<T> onDeleteButtonClicked = null,
-            Action<T> onDuplicateButtonClicked = null) where T : EntityConfiguration
+            Action<T> onDuplicateButtonClicked = null,
+            bool showRarity = true) where T : EntityConfiguration
         {
             
             var foldoutDisplayName = string.IsNullOrWhiteSpace(entityConfiguration.name)
@@ -139,15 +156,18 @@ namespace CharacterGenerator.Editor
                             setDirty($"Changed {nextName} description");
                         }
 
-                        GUILayout.Space(15);
-                        GUILayout.Label("Rarity");
-
-                        var nextRarity = EditorGUILayout.Slider(entityConfiguration.rarity, 0.0f, 1.0f);
-
-                        if (nextRarity != entityConfiguration.rarity)
+                        if (showRarity)
                         {
-                            entityConfiguration.rarity = nextRarity;
-                            setDirty($"Changed {nextName} rarity");
+                            GUILayout.Space(15);
+                            GUILayout.Label("Rarity");
+
+                            var nextRarity = EditorGUILayout.Slider(entityConfiguration.rarity, 0.0f, 1.0f);
+
+                            if (nextRarity != entityConfiguration.rarity)
+                            {
+                                entityConfiguration.rarity = nextRarity;
+                                setDirty($"Changed {nextName} rarity");
+                            }
                         }
 
                         GUILayout.Space(15);
@@ -192,6 +212,34 @@ namespace CharacterGenerator.Editor
                 list.Add(null);
                 setDirty("Added name builder");
             }
+        }
+
+        public static string DrawEntitySelect<T>(GUIContent label, string selectedGuid, List<T> options) where T : EntityConfiguration
+        {
+            var guids = new List<string>() { "" };
+            var names = new List<string>() { "None" };
+
+            for (int i = 0; i < options.Count; i++)
+            {
+                guids.Add(options[i].guid);
+                names.Add(options[i].name);
+            }
+
+            var selectedIndex = guids.IndexOf(selectedGuid);
+
+            if (selectedIndex == -1)
+            {
+                selectedIndex = 0;
+            }
+            
+            var nextSelectedIndex = 
+                label != null 
+                ? EditorGUILayout.Popup(label, selectedIndex, names.ToArray())
+                : EditorGUILayout.Popup(selectedIndex, names.ToArray());
+
+            return nextSelectedIndex != selectedIndex 
+                ? guids[nextSelectedIndex] 
+                : selectedGuid;
         }
     }
 }
