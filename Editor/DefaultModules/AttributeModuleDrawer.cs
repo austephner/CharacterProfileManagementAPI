@@ -2,6 +2,7 @@
 using System.Linq;
 using CharacterGenerator.Configuration;
 using CharacterGenerator.DefaultCharacters.Modules.Attributes;
+using CharacterGenerator.Utilities;
 using UnityEngine;
 
 namespace CharacterGenerator.Editor.DefaultModules
@@ -23,14 +24,14 @@ namespace CharacterGenerator.Editor.DefaultModules
                 return; 
             }
             
-            CharacterGeneratorGUIUtility.DrawTitle("Attributes", "Manage all available attributes for characters.");
+            ModuleGUILayout.DrawTitle("Attributes", "Manage all available attributes for characters.");
 
             for (var i = 0; i < attributesModule.attributes.Count; i++)
             {
                 var unmodifiedIndex = i;
                 var attribute = attributesModule.attributes[i];
 
-                CharacterGeneratorGUIUtility.DrawEntity(
+                ModuleGUILayout.DrawEntityFoldoutGroup(
                     attribute,
                     setDirty,
                     handleGuidChange,
@@ -38,21 +39,21 @@ namespace CharacterGenerator.Editor.DefaultModules
                     {
                         GUILayout.Space(15);
                         GUILayout.Label("Attribute Level Range");
-                        CharacterGeneratorGUIUtility.DrawIntField(
+                        ModuleGUILayout.DrawIntField(
                             new GUIContent("Min Level", "The lowest value this attribute's level can be."),
                             ref configuration.minLevel,
                             () => setDirty("Changed attribute's min level"));
-                        CharacterGeneratorGUIUtility.DrawIntField(
+                        ModuleGUILayout.DrawIntField(
                             new GUIContent("Max Level", "The lowest value this attribute's level can be."),
                             ref configuration.maxLevel,
                             () => setDirty("Changed attribute's max level"));
                         GUILayout.Space(15);
                         GUILayout.Label("Starting Levels");
-                        CharacterGeneratorGUIUtility.DrawIntField(
+                        ModuleGUILayout.DrawIntField(
                             new GUIContent("Min Starting Level", "The lowest value this attribute's level can start at."),
                             ref configuration.minStartingLevel,
                             () => setDirty("Changed attribute's min starting level"));
-                        CharacterGeneratorGUIUtility.DrawIntField(
+                        ModuleGUILayout.DrawIntField(
                             new GUIContent("Max Starting Level", "The highest value this attribute's level can start at."),
                             ref configuration.maxStartingLevel,
                             () => setDirty("Changed attribute's max starting level"));

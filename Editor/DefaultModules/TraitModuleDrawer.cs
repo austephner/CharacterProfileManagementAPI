@@ -4,6 +4,7 @@ using System.Linq;
 using CharacterGenerator.Configuration;
 using CharacterGenerator.DefaultCharacters.Modules.Attributes;
 using CharacterGenerator.DefaultCharacters.Modules.Traits;
+using CharacterGenerator.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                 return; 
             }
             
-            CharacterGeneratorGUIUtility.DrawTitle("Traits", "Manage all available traits for characters.");
+            ModuleGUILayout.DrawTitle("Traits", "Manage all available traits for characters.");
 
             var nextAttributesModule = (AttributeModule) EditorGUILayout.ObjectField(
                 "Attributes Module",
@@ -47,7 +48,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                 var unmodifiedIndex = i;
                 var trait = traitsModule.traits[i];
 
-                CharacterGeneratorGUIUtility.DrawEntity(
+                ModuleGUILayout.DrawEntityFoldoutGroup(
                     trait,
                     setDirty,
                     handleGuidChange,
@@ -114,7 +115,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                 {
                     using (new EditorGUILayout.VerticalScope())
                     {
-                        var nextAttributeGuid = CharacterGeneratorGUIUtility.DrawEntitySelect(
+                        var nextAttributeGuid = ModuleGUILayout.DrawEntitySelect(
                             new GUIContent("Attribute", "The attribute which will be affected by this trait."),
                             attributeAffect.attributeGuid,
                             attributeModule.attributes);

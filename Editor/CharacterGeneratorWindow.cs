@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CharacterGenerator.Configuration;
+using CharacterGenerator.Utilities;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -81,7 +82,7 @@ namespace CharacterGenerator.Editor
             
             if (!_characterGeneratorConfiguration)
             {
-                CharacterGeneratorGUIUtility.DrawFullyFlexibleLabel(
+                ModuleGUILayout.DrawFullyFlexibleLabel(
                     "Please select a character details generator configuration at the top of this window.",
                     EditorStyles.wordWrappedLabel);
             }
@@ -146,7 +147,7 @@ namespace CharacterGenerator.Editor
                 
                 if (selectedModuleTreeViewItem == null)
                 {
-                    CharacterGeneratorGUIUtility.DrawFullyFlexibleLabel("No module selected.");
+                    ModuleGUILayout.DrawFullyFlexibleLabel("No module selected.");
                     return;
                 }
 
@@ -177,73 +178,6 @@ namespace CharacterGenerator.Editor
             }
         }
 
-        [Obsolete]
-        private void DrawManual()
-        {
-            GUILayout.Label("The manual is not yet available.");
-        }
-
-        [Obsolete]
-        private void DrawAttributeEditor()
-        {
-            // _attributeFilter = DrawFilterBar(_attributeFilter);
-            //
-            // for (int i = 0; i < _characterGeneratorConfiguration.attributes.Count; i++)
-            // {
-            //     DrawAttribute(_characterGeneratorConfiguration.attributes[i]);
-            // }
-            //
-            // if (_characterGeneratorConfiguration.attributes.Count > 0)
-            // {
-            //     GUILayout.Space(15);
-            // }
-            //
-            // if (GUILayout.Button("Add Attribute"))
-            // {
-            //     Undo.RecordObject(_characterGeneratorConfiguration, "Added Attribute");
-            //     _characterGeneratorConfigurationEditor.target.attributes.Add(new AttributeConfiguration());
-            //     SetDirty();
-            // }
-        }
-
-        [Obsolete]
-        private void DrawRaceEditor()
-        {
-            // _raceFilter = DrawFilterBar(_raceFilter);
-            //
-            // for (int i = 0; i < _characterGeneratorConfiguration.races.Count; i++)
-            // {
-            //     var race = _characterGeneratorConfiguration.races[i];
-            //     var foldoutDisplayName = string.IsNullOrWhiteSpace(race.name) ? "Unnamed Race" : race.name;
-            //     
-            //     race.expandedInEditor = EditorGUILayout.BeginFoldoutHeaderGroup(
-            //         race.expandedInEditor,
-            //         foldoutDisplayName);
-            //
-            //     if (race.expandedInEditor)
-            //     {
-            //         using (new GUILayout.VerticalScope(GUI.skin.box))
-            //         {
-            //             DrawRace(race);
-            //         }
-            //     }
-            //
-            //     EditorGUILayout.EndFoldoutHeaderGroup();
-            // }
-            //
-            // if (_characterGeneratorConfiguration.races.Count > 0)
-            // {
-            //     GUILayout.Space(15);
-            // }
-            //
-            // if (GUILayout.Button("Add Race"))
-            // {
-            //     Undo.RecordObject(_characterGeneratorConfiguration, "Added Race");
-            //     _characterGeneratorConfigurationEditor.target.races.Add(new RaceConfiguration());
-            //     SetDirty();
-            // }
-        }
-
         #endregion
 
         #region Private Utilities
@@ -263,54 +197,6 @@ namespace CharacterGenerator.Editor
             }
         }
 
-        // private void DrawEntity(EntityModuleDrawer module, EntityConfiguration entityConfiguration, string name)
-        // {
-        //     
-        // }
-        //
-        // [Obsolete]
-        // private void DrawRace(RaceConfiguration race)
-        // {
-        //     // DrawEntity(race, "race");
-        //     //
-        //     // GUILayout.Space(15); 
-        //     // GUILayout.Label("Name Builders");
-        //     // GUILayout.Label("Name builders are what generate names for new characters using this race.", EditorStyles.miniLabel);
-        //     //
-        //     // using (new EditorGUILayout.VerticalScope(GUI.skin.box))
-        //     // {
-        //     //     DrawNameBuilderList(race.characterNameBuilders);
-        //     // }
-        // }
-        //
-        // [Obsolete]
-        // private void DrawAttribute(AttributeConfiguration attribute)
-        // {
-        //     // DrawEntity(attribute, "attribute");
-        //     //
-        //     // GUILayout.Space(15);
-        //     //
-        //     // var nextMin = EditorGUILayout.IntField(
-        //     //     new GUIContent("Min", "The lowest value this attribute can be."),
-        //     //     attribute.min);
-        //     //
-        //     // if (nextMin != attribute.min)
-        //     // {
-        //     //     attribute.min = nextMin;
-        //     //     SetDirty("Changed attribute min value");
-        //     // }
-        //     //     
-        //     // var nextMax = EditorGUILayout.IntField(
-        //     //     new GUIContent("Max", "The lowest value this attribute can be."),
-        //     //     attribute.max);
-        //     //
-        //     // if (nextMax != attribute.max)
-        //     // {
-        //     //     attribute.max = nextMax;
-        //     //     SetDirty("Changed attribute max value");
-        //     // }
-        // }
-
         private void EnsureNonNullViewComponents()
         {
             if (_moduleTreeViewState == null)
@@ -324,52 +210,15 @@ namespace CharacterGenerator.Editor
                 
                 _moduleTreeView = new ModuleTreeView(
                     _moduleTreeViewState,
-                    _characterGeneratorConfiguration?.modules?.Select(module => new ModuleTreeViewItem()
+                    _characterGeneratorConfiguration?.modules?
+                        .Where(module => module && module != null)
+                        .Select(module => new ModuleTreeViewItem()
                     {
                         displayName = module.displayName,
                         id = nextId++,
                         depth = 0,
                         module = module
                     })?.ToList() ?? new List<ModuleTreeViewItem>());
-                    /*new List<ModuleTreeViewItem>()
-                    {
-                        new ModuleTreeViewItem()
-                        {
-                            displayName = "Manual",
-                            id = 1,
-                            depth = 0
-                        },
-                        new ModuleTreeViewItem()
-                        {
-                            displayName = "Attributes",
-                            id = 5,
-                            depth = 0,
-                        },
-                        new ModuleTreeViewItem()
-                        {
-                            displayName = "Races",
-                            id = 2,
-                            depth = 0,
-                        },
-                        new ModuleTreeViewItem()
-                        {
-                            displayName = "Primary Classes",
-                            id = 3,
-                            depth = 0,
-                        },
-                        new ModuleTreeViewItem()
-                        {
-                            displayName = "Sub Classes",
-                            id = 4,
-                            depth = 0,
-                        },
-                        new ModuleTreeViewItem()
-                        {
-                            displayName = "Traits",
-                            id = 6,
-                            depth = 0,
-                        }
-                    }*/
             }
         }
         

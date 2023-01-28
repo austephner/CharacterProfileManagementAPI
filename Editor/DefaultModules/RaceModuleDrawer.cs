@@ -2,6 +2,7 @@
 using System.Linq;
 using CharacterGenerator.Configuration;
 using CharacterGenerator.DefaultCharacters.Modules.Race;
+using CharacterGenerator.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,14 +25,14 @@ namespace CharacterGenerator.Editor.DefaultModules
                 return; 
             }
             
-            CharacterGeneratorGUIUtility.DrawTitle("Races", "Manage all available races for characters.");
+            ModuleGUILayout.DrawTitle("Races", "Manage all available races for characters.");
             
             for (var i = 0; i < raceModule.races.Count; i++)
             {
                 var unmodifiedIndex = i;
                 var race = raceModule.races[i];
 
-                CharacterGeneratorGUIUtility.DrawEntity(
+                ModuleGUILayout.DrawEntityFoldoutGroup(
                     race,
                     setDirty,
                     handleGuidChange,
@@ -43,7 +44,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                             "Use these name builders to help determine the random names for members of this race.",
                             EditorStyles.wordWrappedMiniLabel);
                         GUILayout.Space(5);
-                        CharacterGeneratorGUIUtility.DrawNameBuilderList(configuration.characterNameBuilders,
+                        ModuleGUILayout.DrawNameBuilderList(configuration.characterNameBuilders,
                             setDirty);
                         GUILayout.Space(15);
                     },
