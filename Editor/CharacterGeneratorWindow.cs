@@ -34,7 +34,7 @@ namespace CharacterGenerator.Editor
         [SerializeField]
         private TreeViewState _moduleTreeViewState;
 
-        private static IDictionary<Type, EntityModuleEditor> _entityModuleEditors = new Dictionary<Type, EntityModuleEditor>();
+        private static IDictionary<Type, EntityModuleDrawer> _EntityModuleDrawers = new Dictionary<Type, EntityModuleDrawer>();
 
         #endregion
         
@@ -153,12 +153,13 @@ namespace CharacterGenerator.Editor
                 _selectedModule = selectedModuleTreeViewItem.module;
                 _categoryViewScrollPosition = GUILayout.BeginScrollView(_categoryViewScrollPosition, null, GUI.skin.verticalScrollbar);
 
-                if (_entityModuleEditors.TryGetValue(_selectedModule.GetType(), out var entityModuleEditor))
+                if (_EntityModuleDrawers.TryGetValue(_selectedModule.GetType(), out var EntityModuleDrawer))
                 {
-                    entityModuleEditor.DrawModule(
+                    EntityModuleDrawer.DrawModule(
                         _selectedModule,
-                        _characterGeneratorConfigurationEditor,
-                        SetDirty);
+                        _characterGeneratorConfigurationEditor.target,
+                        SetDirty,
+                        _characterGeneratorConfigurationEditor.UpdateEntityGuidAcrossAllModules);
                 }
                 else
                 {
@@ -381,17 +382,17 @@ namespace CharacterGenerator.Editor
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void Init()
         {
-            _entityModuleEditors = new Dictionary<Type, EntityModuleEditor>();
+            _EntityModuleDrawers = new Dictionary<Type, EntityModuleDrawer>();
             
             var editors = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
-                .Where(type => typeof(EntityModuleEditor).IsAssignableFrom(type) && !type.IsAbstract)
-                .Select(type => (EntityModuleEditor)Activator.CreateInstance(type))
+                .Where(type => typeof(EntityModuleDrawer).IsAssignableFrom(type) && !type.IsAbstract)
+                .Select(type => (EntityModuleDrawer)Activator.CreateInstance(type))
                 .ToList();
 
             foreach (var editor in editors)
             {
-                _entityModuleEditors.Add(editor.moduleType, editor);
+                _EntityModuleDrawers.Add(editor.moduleType, editor);
             }
         }
 

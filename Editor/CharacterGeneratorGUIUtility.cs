@@ -87,8 +87,8 @@ namespace CharacterGenerator.Editor
 
         public static void DrawEntity<T>(
             T entityConfiguration,
-            CharacterGeneratorConfigurationEditor characterGeneratorConfigurationEditor,
             Action<string> setDirty,
+            Action<string, string> handleEntityGuidChange,
             Action<T> drawCustomContent,
             Action<T> onDeleteButtonClicked = null,
             Action<T> onDuplicateButtonClicked = null,
@@ -140,7 +140,7 @@ namespace CharacterGenerator.Editor
 
                         if (nextGuid != entityConfiguration.guid)
                         {
-                            characterGeneratorConfigurationEditor.UpdateEntityGuidAcrossAllModules(entityConfiguration.guid, nextGuid);
+                            handleEntityGuidChange?.Invoke(entityConfiguration.guid, nextGuid);
                             setDirty($"Changed {nextName} GUID");
                         }
 

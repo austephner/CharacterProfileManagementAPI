@@ -7,14 +7,15 @@ using UnityEngine;
 
 namespace CharacterGenerator.Editor.DefaultModules
 {
-    public class RaceEntityModuleEditor : EntityModuleEditor
+    public class RaceModuleDrawer : EntityModuleDrawer
     {
         public override Type moduleType => typeof(RaceModule);
         
         public override void DrawModule(
             EntityModule module, 
-            CharacterGeneratorConfigurationEditor characterGeneratorConfigurationEditor,
-            Action<string> setDirty)
+            CharacterGeneratorConfiguration characterGeneratorConfiguration,
+            Action<string> setDirty,
+            Action<string, string> handleGuidChange)
         {
             var raceModule = module as RaceModule;
 
@@ -32,8 +33,8 @@ namespace CharacterGenerator.Editor.DefaultModules
 
                 CharacterGeneratorGUIUtility.DrawEntity(
                     race,
-                    characterGeneratorConfigurationEditor,
                     setDirty,
+                    handleGuidChange,
                     configuration =>
                     {
                         GUILayout.Space(15);

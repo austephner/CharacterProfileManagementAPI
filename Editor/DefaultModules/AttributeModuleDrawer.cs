@@ -6,12 +6,15 @@ using UnityEngine;
 
 namespace CharacterGenerator.Editor.DefaultModules
 {
-    public class AttributeEntityModuleEditor : EntityModuleEditor
+    public class AttributeModuleDrawer : EntityModuleDrawer
     {
         public override Type moduleType => typeof(AttributeModule);
         
-        public override void DrawModule(EntityModule module, CharacterGeneratorConfigurationEditor characterGeneratorConfigurationEditor,
-            Action<string> setDirty)
+        public override void DrawModule(
+            EntityModule module, 
+            CharacterGeneratorConfiguration characterGeneratorConfiguration,
+            Action<string> setDirty,
+            Action<string, string> handleGuidChange)
         {
             var attributesModule = module as AttributeModule;
 
@@ -29,8 +32,8 @@ namespace CharacterGenerator.Editor.DefaultModules
 
                 CharacterGeneratorGUIUtility.DrawEntity(
                     attribute,
-                    characterGeneratorConfigurationEditor,
                     setDirty,
+                    handleGuidChange,
                     configuration =>
                     {
                         GUILayout.Space(15);

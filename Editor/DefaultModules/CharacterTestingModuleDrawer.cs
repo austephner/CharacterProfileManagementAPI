@@ -7,18 +7,21 @@ using UnityEngine;
 
 namespace CharacterGenerator.Editor.DefaultModules
 {
-    public class CharacterTestingEntityModuleEditor : EntityModuleEditor
+    public class CharacterTestingModuleDrawer : EntityModuleDrawer
     {
         public override Type moduleType => typeof(CharacterTestingModule);
 
         private DefaultCharacterData _data;
 
-        public override void DrawModule(EntityModule module, CharacterGeneratorConfigurationEditor characterGeneratorConfigurationEditor,
-            Action<string> setDirty)
+        public override void DrawModule(
+            EntityModule module, 
+            CharacterGeneratorConfiguration characterGeneratorConfiguration,
+            Action<string> setDirty,
+            Action<string, string> handleGuidChange)
         {
             if (GUILayout.Button("Roll New Character"))
             {
-                _data = new DefaultCharacterData(characterGeneratorConfigurationEditor.target.CreateRandom());
+                _data = new DefaultCharacterData(characterGeneratorConfiguration.CreateRandom());
             }
 
             if (_data != null)
