@@ -12,6 +12,8 @@ namespace CharacterGenerator.DefaultCharacters.Modules.Race
         /// </summary>
         public List<NameBuilder> characterNameBuilders = new List<NameBuilder>();
 
+        // todo: list of attribute affects
+        
         public string GenerateName() => characterNameBuilders.Random()?.GenerateName();
 
         public RaceInstance CreateInstance()

@@ -7,9 +7,11 @@ using UnityEngine;
 
 namespace CharacterGenerator.Editor.DefaultModules
 {
-    public class CharacterTestingModuleDrawer : EntityModuleDrawer
+    public class DefaultCharacterTestingModuleDrawer : EntityModuleDrawer
     {
-        public override Type moduleType => typeof(CharacterTestingModule);
+        public override Type moduleType => typeof(DefaultCharacterTestingModule);
+
+        public override int order => int.MaxValue;
 
         private DefaultCharacterData _data;
 
@@ -65,8 +67,15 @@ namespace CharacterGenerator.Editor.DefaultModules
                     }
 
                     GUILayout.Space(15);
+
+                    DrawExtraDataDetails(_data);
                 }
             }
+        }
+
+        protected virtual void DrawExtraDataDetails(DefaultCharacterData data)
+        {
+            
         }
     }
 }

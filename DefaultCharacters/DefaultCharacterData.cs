@@ -59,7 +59,7 @@ namespace CharacterGenerator.DefaultCharacters
             }
         }
 
-        public int GetTotalAttributeAffectsFromTraits(string attributeGuid)
+        public virtual int GetTotalAttributeAffectsFromTraits(string attributeGuid)
         {
             var result = 0f;
 
@@ -72,6 +72,16 @@ namespace CharacterGenerator.DefaultCharacters
                         result += traits[i].affectedAttributes[j].affectAmount; 
                     }
                 }
+            }
+
+            if (race != null)
+            {
+                // todo: race attribute affects
+                // note: race currently doesn't have attribute affects so that needs to be implemented
+                // foreach (var attributeAffect in race.attributeAffects)
+                // {
+                //     
+                // }
             }
             
             return Mathf.RoundToInt(result);

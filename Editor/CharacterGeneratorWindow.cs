@@ -212,6 +212,7 @@ namespace CharacterGenerator.Editor
                     _moduleTreeViewState,
                     _characterGeneratorConfiguration?.modules?
                         .Where(module => module && module != null)
+                        .OrderBy(module => _EntityModuleDrawers.ContainsKey(module.GetType()) ? _EntityModuleDrawers[module.GetType()].order : int.MaxValue - 1)
                         .Select(module => new ModuleTreeViewItem()
                     {
                         displayName = module.displayName,
