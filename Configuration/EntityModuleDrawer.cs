@@ -2,6 +2,7 @@
 
 namespace CharacterGenerator.Configuration
 {
+    [Obsolete("The module drawer class and custom window are currently under revision.")]
     public abstract class EntityModuleDrawer
     {
         public abstract Type moduleType { get; }
