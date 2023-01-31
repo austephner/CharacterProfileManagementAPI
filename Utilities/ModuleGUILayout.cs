@@ -114,6 +114,7 @@ namespace CharacterGenerator.Utilities
             #if UNITY_EDITOR
             return UnityEditor.EditorGUILayout.TextField(new GUIContent(), filter, filterFieldStyle);
             #endif
+            return "";
         }
         
         // todo: format this function to behave like the DrawInt and DrawObject functions above
@@ -135,6 +136,7 @@ namespace CharacterGenerator.Utilities
 
             return guid;
             #endif
+            return "";
         }
 
         public static void DrawTitle(string title, string subtitle)
@@ -373,6 +375,7 @@ namespace CharacterGenerator.Utilities
                 ? guids[nextSelectedIndex] 
                 : selectedGuid;
             #endif
+            return "";
         }
 
         public static bool DrawButtonLeft(string text, params GUILayoutOption[] options)
