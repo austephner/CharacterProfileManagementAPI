@@ -9,14 +9,20 @@ namespace CharacterGenerator.Utilities
 {
     public static class ModuleGUILayout
     {
-        public static void DrawObjectField<T>(GUIContent content, ref T obj, Action onChanged = null) where T : Object
+        public static void DrawObjectField<T>(
+            GUIContent content, 
+            ref T obj, 
+            Action<T,T> beforeChangeFromTo = null,
+            Action<T,T> afterChangeFromTo = null) where T : Object
         {
             #if UNITY_EDITOR
             var nextObjValue = (T)UnityEditor.EditorGUILayout.ObjectField(content, obj, typeof(T), false);
             if (nextObjValue != obj)
             {
-                onChanged?.Invoke();
+                var priorObjValue = obj;
+                beforeChangeFromTo?.Invoke(obj, nextObjValue);
                 obj = nextObjValue;
+                afterChangeFromTo?.Invoke(priorObjValue, obj);
             }
             #endif
         }
@@ -33,40 +39,44 @@ namespace CharacterGenerator.Utilities
             #endif
         }
         
-        public static void DrawIntField(GUIContent content, ref int value, Action onChanged = null)
+        public static void DrawIntField(GUIContent content, ref int value, Action<int, int> beforeChangeFromTo = null, Action<int, int> afterChangeFromTo = null)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             var nextIntValue = UnityEditor.EditorGUILayout.IntField(content, value);
 
             if (nextIntValue != value)
             {
-                onChanged?.Invoke();
+                var priorValue = value;
+                beforeChangeFromTo?.Invoke(value, nextIntValue);
                 value = nextIntValue;
+                afterChangeFromTo?.Invoke(priorValue, value);
             }
-            #endif
+#endif
         }
         
-        public static void DrawIntField(string label, ref int value, Action onChanged = null)
+        public static void DrawIntField(string label, ref int value, Action<int, int> beforeChangeFromTo = null, Action<int, int> afterChangeFromTo = null)
         {
-            DrawIntField(new GUIContent(label), ref value, onChanged);
+            DrawIntField(new GUIContent(label), ref value, beforeChangeFromTo, afterChangeFromTo);
         }
 
-        public static void DrawFloatField(GUIContent content, ref float value, Action onChanged = null, float min = 0.0f, float max = 1.0f)
+        public static void DrawFloatField(GUIContent content, ref float value, Action<float, float> beforeChangeFromTo, Action<float, float> afterChangeFromTo, float min = 0.0f, float max = 1.0f)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             var nextFloat = UnityEditor.EditorGUILayout.Slider(content, value, min, max);
 
             if (nextFloat != value)
             {
-                onChanged?.Invoke();
+                var priorValue = value;
+                beforeChangeFromTo?.Invoke(value, nextFloat);
                 value = nextFloat;
+                afterChangeFromTo?.Invoke(priorValue, value);
             }
-            #endif
+#endif
         }
 
-        public static void DrawFloatField(string label, ref float value, Action onChanged = null, float min = 0f, float max = 1f)
+        public static void DrawFloatField(string label, ref float value, Action<float, float> beforeChangeFromTo, Action<float, float> afterChangeFromTo, float min = 0f, float max = 1f)
         {
-            DrawFloatField(new GUIContent(label), ref value, onChanged, min, max);
+            DrawFloatField(new GUIContent(label), ref value, beforeChangeFromTo, afterChangeFromTo, min, max);
         }
         
         public static void DrawFullyFlexibleLabel(string label, GUIStyle style, params GUILayoutOption[] labelOptions)
@@ -138,7 +148,8 @@ namespace CharacterGenerator.Utilities
 
         public static void DrawEntityFoldoutGroup<T>(
             T entityConfiguration,
-            Action<string> setDirty,
+            Action setDirty,
+            Action<string> recordChange,
             Action<string, string> handleEntityGuidChange,
             Action<T> drawCustomContent,
             Action<T> onDeleteButtonClicked = null,
@@ -159,15 +170,19 @@ namespace CharacterGenerator.Utilities
                 if (onDeleteButtonClicked != null &&
                     GUILayout.Button(UnityEditor.EditorGUIUtility.IconContent("TreeEditor.Trash"), GUILayout.ExpandWidth(false)))
                 {
+                    recordChange?.Invoke("Deleted entity");
                     onDeleteButtonClicked?.Invoke(entityConfiguration);
-                    throw new ExitGUIException();
+                    setDirty?.Invoke();
+                    return;
                 }
 
                 if (onDuplicateButtonClicked != null &&
                     GUILayout.Button(UnityEditor.EditorGUIUtility.IconContent("TreeEditor.Duplicate"), GUILayout.ExpandWidth(false)))
                 {
+                    recordChange?.Invoke("Duplicated entity");
                     onDuplicateButtonClicked?.Invoke(entityConfiguration);
-                    throw new ExitGUIException();
+                    setDirty?.Invoke();
+                    return;
                 }
             }
 
@@ -183,16 +198,18 @@ namespace CharacterGenerator.Utilities
 
                         if (nextName != entityConfiguration.name)
                         {
+                            recordChange?.Invoke("Changed entity name");
                             entityConfiguration.name = nextName;
-                            setDirty($"Changed {nextName} name");
+                            setDirty?.Invoke();
                         }
 
                         var nextGuid = DrawGuidField(entityConfiguration.guid, true);
 
                         if (nextGuid != entityConfiguration.guid)
                         {
+                            recordChange?.Invoke("Changed entity GUID");
                             handleEntityGuidChange?.Invoke(entityConfiguration.guid, nextGuid);
-                            setDirty($"Changed {nextName} GUID");
+                            setDirty?.Invoke();
                         }
 
                         GUILayout.Space(15);
@@ -202,8 +219,9 @@ namespace CharacterGenerator.Utilities
 
                         if (nextDescription != entityConfiguration.description)
                         {
+                            recordChange?.Invoke("Changed entity description");
                             entityConfiguration.description = nextDescription;
-                            setDirty($"Changed {nextName} description");
+                            setDirty?.Invoke();
                         }
 
                         if (showRarity)
@@ -215,8 +233,9 @@ namespace CharacterGenerator.Utilities
 
                             if (nextRarity != entityConfiguration.rarity)
                             {
+                                recordChange?.Invoke("Changed entity rarity");
                                 entityConfiguration.rarity = nextRarity;
-                                setDirty($"Changed {nextName} rarity");
+                                setDirty?.Invoke();
                             }
                         }
 
@@ -234,105 +253,6 @@ namespace CharacterGenerator.Utilities
             #endif
         }
         
-        public static void DrawEntityBox<T>(
-            T entityConfiguration,
-            Action<string> setDirty,
-            Action<string, string> handleEntityGuidChange,
-            Action<T> drawCustomContent,
-            Action<T> onDeleteButtonClicked = null,
-            Action<T> onDuplicateButtonClicked = null,
-            bool showRarity = true) where T : EntityConfiguration
-        {
-            #if UNITY_EDITOR
-            var displayName = string.IsNullOrWhiteSpace(entityConfiguration.name)
-                ? "Unnamed"
-                : entityConfiguration.name;
-
-            using (new GUILayout.VerticalScope(GUI.skin.box))
-            {
-                using (new GUILayout.HorizontalScope())
-                {
-                    GUILayout.Label(displayName, UnityEditor.EditorStyles.boldLabel);
-
-                    if (onDeleteButtonClicked != null &&
-                        GUILayout.Button(UnityEditor.EditorGUIUtility.IconContent("TreeEditor.Trash"),
-                            GUILayout.ExpandWidth(false)))
-                    {
-                        onDeleteButtonClicked?.Invoke(entityConfiguration);
-                        throw new ExitGUIException();
-                    }
-
-                    if (onDuplicateButtonClicked != null &&
-                        GUILayout.Button(UnityEditor.EditorGUIUtility.IconContent("TreeEditor.Duplicate"),
-                            GUILayout.ExpandWidth(false)))
-                    {
-                        onDuplicateButtonClicked?.Invoke(entityConfiguration);
-                        throw new ExitGUIException();
-                    }
-                }
-
-                GUILayout.Space(15);
-
-                using (new GUILayout.HorizontalScope())
-                {
-                    GUILayout.Space(15);
-
-                    using (new GUILayout.VerticalScope())
-                    {
-                        var nextName = UnityEditor.EditorGUILayout.TextField("Name", entityConfiguration.name);
-
-                        if (nextName != entityConfiguration.name)
-                        {
-                            entityConfiguration.name = nextName;
-                            setDirty($"Changed {nextName} name");
-                        }
-
-                        var nextGuid = DrawGuidField(entityConfiguration.guid, true);
-
-                        if (nextGuid != entityConfiguration.guid)
-                        {
-                            handleEntityGuidChange?.Invoke(entityConfiguration.guid, nextGuid);
-                            setDirty($"Changed {nextName} GUID");
-                        }
-
-                        GUILayout.Space(15);
-                        GUILayout.Label("Description");
-
-                        var nextDescription =
-                            UnityEditor.EditorGUILayout.TextArea(entityConfiguration.description, GUILayout.Height(50));
-
-                        if (nextDescription != entityConfiguration.description)
-                        {
-                            entityConfiguration.description = nextDescription;
-                            setDirty($"Changed {nextName} description");
-                        }
-
-                        if (showRarity)
-                        {
-                            GUILayout.Space(15);
-                            GUILayout.Label("Rarity");
-
-                            var nextRarity = UnityEditor.EditorGUILayout.Slider(entityConfiguration.rarity, 0.0f, 1.0f);
-
-                            if (nextRarity != entityConfiguration.rarity)
-                            {
-                                entityConfiguration.rarity = nextRarity;
-                                setDirty($"Changed {nextName} rarity");
-                            }
-                        }
-
-                        GUILayout.Space(15);
-                        drawCustomContent?.Invoke(entityConfiguration);
-                    }
-
-                    GUILayout.Space(15);
-                }
-            }
-
-            GUILayout.Space(15);
-            #endif
-        }
-
         public static void DrawList<T>(
             List<T> list,
             Action<T> onDraw,
@@ -387,7 +307,10 @@ namespace CharacterGenerator.Utilities
             GUI.enabled = priorGuiState;
         }
         
-        public static void DrawNameBuilderList(List<NameBuilder> list, Action<string> setDirty) 
+        public static void DrawNameBuilderList(
+            List<NameBuilder> list, 
+            Action setDirty,
+            Action<string> recordChange) 
         {
             #if UNITY_EDITOR
             for (int i = 0; i < list.Count; i++)
@@ -398,15 +321,16 @@ namespace CharacterGenerator.Utilities
 
                     if (next != list[i])
                     {
-                        setDirty("Changed name builder");
+                        recordChange?.Invoke("Changed name builder");
+                        list[i] = next;
+                        setDirty?.Invoke();
                     }
-
-                    list[i] = next;
 
                     if (GUILayout.Button(UnityEditor.EditorGUIUtility.IconContent("TreeEditor.Trash"), GUILayout.ExpandWidth(false)))
                     {
-                        setDirty("Removed name builder");
+                        recordChange?.Invoke("Removed name builder");
                         list.RemoveAt(i);
+                        setDirty?.Invoke();
                         break;
                     }
                 }
@@ -414,8 +338,9 @@ namespace CharacterGenerator.Utilities
 
             if (GUILayout.Button("Add Name Builder"))
             {
+                recordChange?.Invoke("Added name builder");
                 list.Add(null);
-                setDirty("Added name builder");
+                setDirty?.Invoke();
             }
             #endif
         }

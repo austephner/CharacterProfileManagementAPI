@@ -18,7 +18,8 @@ namespace CharacterGenerator.Editor.DefaultModules
         public override void DrawModule(
             EntityModule module, 
             CharacterGeneratorConfiguration characterGeneratorConfiguration,
-            Action<string> setDirty,
+            Action setDirty,
+            Action<string> recordChange,
             Action<string, string> handleGuidChange)
         {
             if (GUILayout.Button("Roll New Character"))

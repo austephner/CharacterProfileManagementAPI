@@ -5,8 +5,8 @@ using CharacterGenerator.Configuration;
 using CharacterGenerator.Utilities;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
+using UnityEditor.SceneManagement;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CharacterGenerator.Editor
 {
@@ -19,8 +19,6 @@ namespace CharacterGenerator.Editor
         #endregion
         
         #region Private
-
-        private CharacterGeneratorConfiguration _characterGeneratorConfiguration;
 
         private CharacterGeneratorConfigurationEditor _characterGeneratorConfigurationEditor;
 
@@ -77,10 +75,26 @@ namespace CharacterGenerator.Editor
 
         private void OnGUI()
         {
+            if (_characterGeneratorConfigurationEditor)
+            {
+                var castedTarget = (CharacterGeneratorConfiguration)_characterGeneratorConfigurationEditor.target;
+                var testModuleProperty = _characterGeneratorConfigurationEditor.serializedObject.FindProperty("testModule");
+
+                // var nextTestField = EditorGUILayout.TextField(castedTarget.testModule.testField);
+                //
+                // if (nextTestField != castedTarget.testModule.testField)
+                // {
+                //     RecordUndoRedo("Changed test field");
+                //     castedTarget.testModule.testField = nextTestField;
+                //     _characterGeneratorConfigurationEditor.serializedObject.ApplyModifiedProperties();
+                //     SetDirty();
+                // }
+            }
+            
             EnsureNonNullViewComponents();
             DrawCharacterGeneratorField();
             
-            if (!_characterGeneratorConfiguration)
+            if (!_characterGeneratorConfigurationEditor)
             {
                 ModuleGUILayout.DrawFullyFlexibleLabel(
                     "Please select a character details generator configuration at the top of this window.",
@@ -99,18 +113,16 @@ namespace CharacterGenerator.Editor
         private void DrawCharacterGeneratorField()
         {
             var characterGeneratorConfiguration = (CharacterGeneratorConfiguration)EditorGUILayout.ObjectField(
-                _characterGeneratorConfiguration,
+                _characterGeneratorConfigurationEditor?.target,
                 typeof(CharacterGeneratorConfiguration),
                 false);
 
-            if (characterGeneratorConfiguration != _characterGeneratorConfiguration)
+            if (characterGeneratorConfiguration != _characterGeneratorConfigurationEditor?.target)
             {
-                _characterGeneratorConfiguration = characterGeneratorConfiguration;
-
                 if (characterGeneratorConfiguration)
                 {
                     _characterGeneratorConfigurationEditor =
-                        UnityEditor.Editor.CreateEditor(_characterGeneratorConfiguration) as
+                        UnityEditor.Editor.CreateEditor(characterGeneratorConfiguration) as
                             CharacterGeneratorConfigurationEditor;
                 }
                 else
@@ -156,10 +168,13 @@ namespace CharacterGenerator.Editor
 
                 if (_EntityModuleDrawers.TryGetValue(_selectedModule.GetType(), out var EntityModuleDrawer))
                 {
+                    var castedTarget = (CharacterGeneratorConfiguration) _characterGeneratorConfigurationEditor.target;
+                    
                     EntityModuleDrawer.DrawModule(
                         _selectedModule,
-                        _characterGeneratorConfigurationEditor.target,
+                        castedTarget,
                         SetDirty,
+                        RecordUndoRedo,
                         _characterGeneratorConfigurationEditor.UpdateEntityGuidAcrossAllModules);
                 }
                 else
@@ -182,19 +197,15 @@ namespace CharacterGenerator.Editor
 
         #region Private Utilities
 
-        private void SetDirty(string dirtyMessage = "Change was made")
-        {
-            SetDirty(_characterGeneratorConfigurationEditor.target, dirtyMessage);
-        }
-
-        private new void SetDirty(Object dirty, string dirtyMessage = "Change was made")
+        private new void SetDirty()
         {
             EditorUtility.SetDirty(_characterGeneratorConfigurationEditor.target);
+            EditorSceneManager.MarkAllScenesDirty();
+        }
 
-            if (!dirty)
-            {
-                Undo.RecordObject(dirty, dirtyMessage);
-            }
+        private void RecordUndoRedo(string change = "")
+        {
+            Undo.RecordObject(_characterGeneratorConfigurationEditor.target, change);
         }
 
         private void EnsureNonNullViewComponents()
@@ -204,13 +215,15 @@ namespace CharacterGenerator.Editor
                 _moduleTreeViewState = new TreeViewState();
             }
 
-            if (_moduleTreeView == null || _moduleTreeView.GetRows().Count != (_characterGeneratorConfiguration?.modules?.Count ?? 0))
+            var castedTarget = (CharacterGeneratorConfiguration) _characterGeneratorConfigurationEditor?.target;
+
+            if (_moduleTreeView == null || _moduleTreeView.GetRows().Count != (castedTarget?.modules?.Count ?? 0))
             {
                 var nextId = 1;
                 
                 _moduleTreeView = new ModuleTreeView(
                     _moduleTreeViewState,
-                    _characterGeneratorConfiguration?.modules?
+                    castedTarget?.modules?
                         .Where(module => module && module != null)
                         .OrderBy(module => _EntityModuleDrawers.ContainsKey(module.GetType()) ? _EntityModuleDrawers[module.GetType()].order : int.MaxValue - 1)
                         .Select(module => new ModuleTreeViewItem()

@@ -14,7 +14,8 @@ namespace CharacterGenerator.Editor.DefaultModules
         public override void DrawModule(
             EntityModule module, 
             CharacterGeneratorConfiguration characterGeneratorConfiguration,
-            Action<string> setDirty,
+            Action setDirty,
+            Action<string> recordChange,
             Action<string, string> handleGuidChange)
         {
             var attributesModule = module as AttributeModule;
@@ -34,6 +35,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                 ModuleGUILayout.DrawEntityFoldoutGroup(
                     attribute,
                     setDirty,
+                    recordChange,
                     handleGuidChange,
                     configuration =>
                     {
@@ -42,26 +44,31 @@ namespace CharacterGenerator.Editor.DefaultModules
                         ModuleGUILayout.DrawIntField(
                             new GUIContent("Min Level", "The lowest value this attribute's level can be."),
                             ref configuration.minLevel,
-                            () => setDirty("Changed attribute's min level"));
+                            (from, to) => recordChange("Changed attribute value"),
+                            (from, to) => setDirty());
                         ModuleGUILayout.DrawIntField(
                             new GUIContent("Max Level", "The lowest value this attribute's level can be."),
                             ref configuration.maxLevel,
-                            () => setDirty("Changed attribute's max level"));
+                            (from, to) => recordChange("Changed attribute value"),
+                            (from, to) => setDirty());
                         GUILayout.Space(15);
                         GUILayout.Label("Starting Levels");
                         ModuleGUILayout.DrawIntField(
                             new GUIContent("Min Starting Level", "The lowest value this attribute's level can start at."),
                             ref configuration.minStartingLevel,
-                            () => setDirty("Changed attribute's min starting level"));
+                            (from, to) => recordChange("Changed attribute value"),
+                            (from, to) => setDirty());
                         ModuleGUILayout.DrawIntField(
                             new GUIContent("Max Starting Level", "The highest value this attribute's level can start at."),
                             ref configuration.maxStartingLevel,
-                            () => setDirty("Changed attribute's max starting level"));
+                            (from, to) => recordChange("Changed attribute value"),
+                            (from, to) => setDirty());
                     },
                     configuration =>
                     {
+                        recordChange("Removed attribute");
                         attributesModule.attributes.Remove(configuration);
-                        setDirty("Removed attribute");
+                        setDirty();
                     },
                     configuration =>
                     {
@@ -97,11 +104,9 @@ namespace CharacterGenerator.Editor.DefaultModules
                     nextAttributeNumber++;
                 }
 
-                attributesModule.attributes.Add(new AttributeConfiguration()
-                {
-                    name = $"attribute {nextAttributeNumber}"
-                });
-                setDirty("Added new attribute");
+                recordChange("Added attribute");
+                attributesModule.attributes.Add(new AttributeConfiguration() { name = $"attribute {nextAttributeNumber}" });
+                setDirty();
             }
         }
     }

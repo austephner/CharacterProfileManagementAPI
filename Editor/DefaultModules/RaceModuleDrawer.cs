@@ -15,7 +15,8 @@ namespace CharacterGenerator.Editor.DefaultModules
         public override void DrawModule(
             EntityModule module, 
             CharacterGeneratorConfiguration characterGeneratorConfiguration,
-            Action<string> setDirty,
+            Action setDirty,
+            Action<string> recordChange,
             Action<string, string> handleGuidChange)
         {
             var raceModule = module as RaceModule;
@@ -35,6 +36,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                 ModuleGUILayout.DrawEntityFoldoutGroup(
                     race,
                     setDirty,
+                    recordChange,
                     handleGuidChange,
                     configuration =>
                     {
@@ -44,28 +46,23 @@ namespace CharacterGenerator.Editor.DefaultModules
                             "Use these name builders to help determine the random names for members of this race.",
                             EditorStyles.wordWrappedMiniLabel);
                         GUILayout.Space(5);
-                        ModuleGUILayout.DrawNameBuilderList(configuration.characterNameBuilders,
-                            setDirty);
+                        ModuleGUILayout.DrawNameBuilderList(
+                            configuration.characterNameBuilders,
+                            setDirty,
+                            recordChange);
                         GUILayout.Space(15);
                     },
-                    configuration =>
-                    {
-                        raceModule.races.Remove(configuration);
-                        setDirty("Removed race");
-                    },
-                    configuration =>
-                    {
-                        raceModule.races.Insert(
-                            unmodifiedIndex,
-                            new RaceConfiguration()
-                            {
-                                description = configuration.description,
-                                guid = Guid.NewGuid().ToString(),
-                                name = configuration.name + " (CLONE)",
-                                characterNameBuilders = configuration.characterNameBuilders.ToList(),
-                                expandedInEditor = false
-                            });
-                    });
+                    configuration => raceModule.races.Remove(configuration),
+                    configuration => raceModule.races.Insert(
+                        unmodifiedIndex,
+                        new RaceConfiguration()
+                        {
+                            description = configuration.description,
+                            guid = Guid.NewGuid().ToString(),
+                            name = configuration.name + " (CLONE)",
+                            characterNameBuilders = configuration.characterNameBuilders.ToList(),
+                            expandedInEditor = false
+                        }));
             }
 
             if (raceModule.races.Count != 0)
@@ -82,11 +79,9 @@ namespace CharacterGenerator.Editor.DefaultModules
                     nextRaceNumber++;
                 }
 
-                raceModule.races.Add(new RaceConfiguration()
-                {
-                    name = $"Race {nextRaceNumber}"
-                });
-                setDirty("Added new race");
+                recordChange?.Invoke("Added new race");
+                raceModule.races.Add(new RaceConfiguration() { name = $"Race {nextRaceNumber}" });
+                setDirty?.Invoke();
             }
         }
     }

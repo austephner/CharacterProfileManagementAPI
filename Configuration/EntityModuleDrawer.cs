@@ -11,7 +11,8 @@ namespace CharacterGenerator.Configuration
         public abstract void DrawModule(
             EntityModule module,
             CharacterGeneratorConfiguration characterGeneratorConfiguration,
-            Action<string> setDirty,
-            Action<string, string> handleEntityGuidChange); 
+            Action setDirty,
+            Action<string> recordChange,
+            Action<string, string> onEntityGuidChange); 
     }
 }

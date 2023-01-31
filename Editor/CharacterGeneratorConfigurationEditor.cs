@@ -7,8 +7,6 @@ namespace CharacterGenerator.Editor
     [CustomEditor(typeof(CharacterGeneratorConfiguration))]
     public class CharacterGeneratorConfigurationEditor : UnityEditor.Editor
     {
-        public new CharacterGeneratorConfiguration target => base.target as CharacterGeneratorConfiguration;
-        
         private FieldInfo GetFieldInfo(string fieldName)
         {
             return typeof(CharacterGeneratorConfiguration).GetField(
@@ -18,7 +16,9 @@ namespace CharacterGenerator.Editor
 
         public void UpdateEntityGuidAcrossAllModules(string from, string to)
         {
-            foreach (var module in target.modules)
+            var castedTarget = (CharacterGeneratorConfiguration)target;
+            
+            foreach (var module in castedTarget.modules)
             {
                 module.HandleGuidChange(from, to);
             }

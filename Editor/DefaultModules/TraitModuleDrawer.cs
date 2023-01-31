@@ -17,7 +17,8 @@ namespace CharacterGenerator.Editor.DefaultModules
         public override void DrawModule(
             EntityModule module, 
             CharacterGeneratorConfiguration characterGeneratorConfiguration,
-            Action<string> setDirty,
+            Action setDirty,
+            Action<string> recordChange,
             Action<string, string> handleGuidChange)
         {
             var traitsModule = module as TraitsModule;
@@ -37,8 +38,9 @@ namespace CharacterGenerator.Editor.DefaultModules
 
             if (nextAttributesModule != traitsModule.attributeModule)
             {
+                recordChange("Changed attribute module");
                 traitsModule.attributeModule = nextAttributesModule;
-                setDirty("Changed trait module's attribute module");
+                setDirty();
             }
 
             GUILayout.Space(15);
@@ -51,6 +53,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                 ModuleGUILayout.DrawEntityFoldoutGroup(
                     trait,
                     setDirty,
+                    recordChange,
                     handleGuidChange,
                     configuration =>
                     {
@@ -61,12 +64,14 @@ namespace CharacterGenerator.Editor.DefaultModules
                         DrawAttributeAffectList(
                             configuration.affectedAttributes,
                             traitsModule.attributeModule,
-                            setDirty);
+                            setDirty,
+                            recordChange);
                     },
                     configuration =>
                     {
+                        recordChange("Removed trait");
                         traitsModule.traits.Remove(configuration);
-                        setDirty("Removed trait");
+                        setDirty();
                     },
                     configuration =>
                     {
@@ -97,15 +102,17 @@ namespace CharacterGenerator.Editor.DefaultModules
                     nextTraitNumber++;
                 }
 
-                traitsModule.traits.Add(new TraitConfiguration()
-                {
-                    name = $"Trait {nextTraitNumber}"
-                });
-                setDirty("Added new trait");
+                recordChange("Added new trait");
+                traitsModule.traits.Add(new TraitConfiguration() { name = $"Trait {nextTraitNumber}" });
+                setDirty();
             }
         }
         
-        private static void DrawAttributeAffectList(List<AttributeAffectConfiguration> list, AttributeModule attributeModule, Action<string> setDirty) 
+        private static void DrawAttributeAffectList(
+            List<AttributeAffectConfiguration> list, 
+            AttributeModule attributeModule, 
+            Action setDirty,
+            Action<string> recordChange) 
         {
             for (int i = 0; i < list.Count; i++)
             {
@@ -122,31 +129,35 @@ namespace CharacterGenerator.Editor.DefaultModules
 
                         if (nextAttributeGuid != attributeAffect.attributeGuid)
                         {
+                            recordChange("Changed attribute affect's target guid");
                             attributeAffect.attributeGuid = nextAttributeGuid;
-                            setDirty("Changed attribute affect's target guid");
+                            setDirty();
                         }
 
                         var nextMin = EditorGUILayout.FloatField("Min Affect", attributeAffect.minAffect);
 
                         if (nextMin != attributeAffect.minAffect)
                         {
+                            recordChange("Changed attribute affect's min value");
                             attributeAffect.minAffect = nextMin;
-                            setDirty("Updated attribute affect's min value");
+                            setDirty();
                         }
                         
                         var nextMax = EditorGUILayout.FloatField("Max Affect", attributeAffect.maxAffect);
 
                         if (nextMax != attributeAffect.maxAffect)
                         {
+                            recordChange("Changed attribute affect's max value");
                             attributeAffect.maxAffect = nextMax;
-                            setDirty("Updated attribute affect's max value");
+                            setDirty();
                         }
                     }
 
                     if (GUILayout.Button(EditorGUIUtility.IconContent("TreeEditor.Trash"), GUILayout.ExpandWidth(false)))
                     {
-                        setDirty("Removed name builder");
+                        recordChange("Removed attribute affect");
                         list.RemoveAt(i);
+                        setDirty();
                         break;
                     }
                 }
@@ -154,8 +165,9 @@ namespace CharacterGenerator.Editor.DefaultModules
 
             if (GUILayout.Button("Add Attribute Affect"))
             {
+                recordChange("Added attribute affect");
                 list.Add(new AttributeAffectConfiguration());
-                setDirty("Added name builder");
+                setDirty();
             }
         }
     }
