@@ -7,6 +7,8 @@ namespace CharacterGenerator.Configuration
     {
         public virtual string displayName => GetType().Name;
 
+        public virtual int executionOrder => 1;
+
         public abstract void Generate(CharacterData characterData, uint? seed = null);
 
         public virtual void HandleGuidChange(string oldGuid, string newGuid) { }

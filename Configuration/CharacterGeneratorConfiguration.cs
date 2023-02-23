@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using CharacterGenerator.DefaultCharacters.Modules;
+using System.Linq;
 using CharacterGenerator.Instancing;
 using UnityEngine;
 
@@ -9,15 +9,13 @@ namespace CharacterGenerator.Configuration
     [CreateAssetMenu(menuName = "Character Generator/Configuration")]
     public class CharacterGeneratorConfiguration : ScriptableObject
     {
-        public TestModule testModule;
-        
         public List<EntityModule> modules = new List<EntityModule>();
 
         public CharacterData CreateRandom(uint? seed = null)
         {
             var result = new CharacterData();
 
-            foreach (var module in modules)
+            foreach (var module in modules.OrderBy(m => m.executionOrder))
             {
                 try
                 {
