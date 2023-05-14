@@ -23,7 +23,7 @@ namespace CharacterGenerator.DefaultCharacters.Modules.Attributes
             {
                 attributes.Add(new AttributeInstance()
                 {
-                    guid = attribute.guid,
+                    instanceGuid = attribute.guid,
                     name = attribute.name,
                     level = seed != null
                         ? new Random(seed.Value).NextInt(attribute.minStartingLevel, attribute.maxStartingLevel + 1)

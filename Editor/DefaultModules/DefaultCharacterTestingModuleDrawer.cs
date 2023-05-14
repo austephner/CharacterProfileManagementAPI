@@ -40,7 +40,7 @@ namespace CharacterGenerator.Editor.DefaultModules
                     if (_data.attributes.Count == 0) GUILayout.Label("None");
                     foreach (var attribute in _data.attributes)
                     {
-                        var affect = _data.GetTotalAttributeAffectsFromTraits(attribute.guid);
+                        var affect = _data.GetTotalAttributeAffectsFromTraits(attribute.instanceGuid);
                         var affectText = affect > 0 ? $"(+{affect})" : affect < 0 ? $"(-{affect})" : "";
                         GUILayout.Label($"{attribute.name}: {attribute.level} {affectText}");
                     }

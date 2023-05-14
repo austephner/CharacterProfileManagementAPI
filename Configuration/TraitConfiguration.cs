@@ -15,7 +15,7 @@ namespace CharacterGenerator.Configuration
         {
             return new TraitInstance()
             {
-                guid = guid,
+                instanceGuid = guid,
                 name = name,
                 affectedAttributes = affectedAttributes
                     .Select(a => a.CreateRandomInstance(attributeModule))

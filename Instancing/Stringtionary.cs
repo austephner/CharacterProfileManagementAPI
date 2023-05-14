@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Auxtensions;
 using UnityEngine;
 
 namespace CharacterGenerator.Instancing
@@ -93,6 +94,16 @@ namespace CharacterGenerator.Instancing
             }
         }
 
+        public Stringtionary Clone()
+        {
+            return new Stringtionary()
+            {
+                _serializedKeys = _serializedKeys.Clone(),
+                _serializedValues = _serializedValues.Clone(),
+                _runtimeDictionary = _runtimeDictionary.Clone()
+            };
+        }
+
         #endregion
 
         #region Dictionary Implementations 
@@ -167,8 +178,8 @@ namespace CharacterGenerator.Instancing
         
         public void OnBeforeSerialize()
         {
-            _serializedKeys = _runtimeDictionary.Keys.ToList();
-            _serializedValues = _runtimeDictionary.Values.ToList();
+            _serializedKeys = _runtimeDictionary?.Keys.ToList() ?? new List<string>();
+            _serializedValues = _runtimeDictionary?.Values.ToList() ?? new List<string>();
         }
 
         public void OnAfterDeserialize()

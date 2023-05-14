@@ -20,7 +20,7 @@ namespace CharacterGenerator.DefaultCharacters.Modules.Race
         {
             return new RaceInstance()
             {
-                guid = guid,
+                instanceGuid = guid,
                 name = name
             };
         }
